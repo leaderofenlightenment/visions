@@ -18,12 +18,15 @@
     "@fontsource/ibm-plex-mono": "^5.2.0",
     "@fontsource/inter": "^5.2.0",
     "@fontsource/space-grotesk": "^5.2.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.2",
     "lucide-react": "^1.0.0",
     "next": "16.4.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.6.0",
     "@testing-library/react": "^16.3.3",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^22",

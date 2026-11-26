@@ -9,3 +9,14 @@
 - [ ] Phase 04 · Licensed source ingestion, versioned theological knowledge and reviewable provenance
 - [ ] Phase 05 · Article, image and music workspaces, derivative assets, editorial review and approvals
 - [ ] Phase 06 · Vercel deployment, security and accessibility validation, monitoring, backups and operational documentation
+
+### Phase 02 status
+
+- [x] Configurable Supabase email/password sign-in and server-side sessions
+- [x] Owner-scoped records and habit completion migrations
+- [x] Editable habits, journals, relationship profiles and projects
+- [x] Week and 30-day habit completion windows
+- [ ] Verify authentication and persistence end to end against a configured Supabase instance
+- [x] Filterable relationship clusters with condition indicators and zoom
+- [ ] Add flexible schedules, reminders, routine templates, richer relationship history, and graph navigation
+- [ ] Complete data export, account deletion, and production-sensitive storage review

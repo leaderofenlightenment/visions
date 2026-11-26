@@ -1,6 +1,6 @@
 # Database and security design
 
-Phase 01 has no database. This is the proposed relational model for later migrations. All user-owned tables have a UUID key, owner_id referencing auth.users, created_at and updated_at. Child tables use composite foreign keys on parent ID and owner ID. Apply RLS with owner-scoped select, insert, update and delete policies using auth.uid(), plus role restrictions on server-owned records.
+The Phase 02 foundation introduces `personal_records` and `habit_completions`. Authenticated clients can access only their own rows. The composite completion foreign key requires a habit belonging to the same owner. The table below describes the intended model as later phases expand it. All user-owned tables have a UUID key, owner_id referencing auth.users, created_at and updated_at. Child tables use composite foreign keys on parent ID and owner ID. Apply RLS with owner-scoped select, insert, update and delete policies using auth.uid(), plus role restrictions on server-owned records.
 
 | Area | Tables and relationships |
 | --- | --- |

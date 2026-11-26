@@ -396,3 +396,29 @@ kbd { display: inline-flex; align-items: center; gap: 3px; font: .68rem var(--mo
   .activity-list small { font-size: .57rem; }
   .focus-panel p { font-size: .72rem; }
 }
+
+.personal-workspace { margin-top: 12px; }
+.personal-form { display: grid; gap: 10px; max-width: 650px; }
+.personal-form label, .personal-filters label { display: grid; gap: 4px; color: #ddd1ed; }
+.personal-form input, .personal-form textarea, .personal-filters input:not([type="checkbox"]), .personal-filters select {
+  background: #0c0916; border: 1px solid #514064; color: var(--text); border-radius: 6px; padding: 7px; width: 100%;
+}
+.personal-filters label:has(input[type="checkbox"]) { display: flex; align-items: center; }
+.personal-filters, .personal-actions, .habit-calendar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.personal-filters { margin-top: 20px; align-items: end; }
+.personal-record { border: 1px solid #3a2c51; padding: 10px; margin: 8px 0; border-radius: 8px; }
+.personal-record p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.personal-record small { display: block; color: var(--muted); }
+.personal-record .personal-actions { margin-top: 8px; }
+.habit-calendar { margin-top: 8px; }
+.habit-calendar button[aria-pressed="true"] { border-color: #66e5ac; background: #15382b; }
+.relationship-graph { margin-top: 16px; }
+.relationship-graph summary { cursor: pointer; margin-bottom: 8px; }
+.relationship-scroll { max-height: 380px; overflow: auto; margin-top: 8px; }
+.relationship-clusters { display: grid; align-items: start; gap: 12px; padding: 8px; }
+.relationship-cluster { border: 1px solid #49365f; border-radius: 12px; padding: 12px; }
+.relationship-cluster ul { list-style: none; border-left: 1px solid #71588c; padding: 0 0 0 12px; margin: 10px 0 0; }
+.relationship-cluster li { position: relative; margin: 5px 0; }
+.relationship-cluster li::before { content: ""; position: absolute; width: 12px; height: 1px; left: -12px; top: 50%; background: #71588c; }
+.relationship-cluster button { text-align: left; overflow-wrap: anywhere; }
+.relationship-node { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }

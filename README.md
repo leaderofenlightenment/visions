@@ -34,3 +34,18 @@ This preview saves display preferences and workflow drafts in browser storage wi
 - [Design system](docs/design.md)
 - [Database and security model](docs/data-model.md)
 - [Development roadmap](docs/roadmap.md)
+
+## Phase 02 personal workspace setup
+
+For the authenticated workspaces, create a Supabase project, then apply
+`supabase/migrations/202611260001_personal_os.sql` in its SQL Editor. Create an
+email/password user in **Authentication → Users**. Copy `.env.example` to
+`.env.local` and set `NEXT_PUBLIC_SUPABASE_URL` and
+`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` using the project's connection details.
+Use the publishable key, and keep the service-role key out of the app. Restart
+the development server and sign in from Lifestyle, Relationships, or Projects.
+
+The Phase 02 foundation includes private records, daily habit completions,
+calendar windows, an editable journal, grouped relationship profiles, and
+projects. Workflow drafts from Phase 01 stay in the browser. Use test records
+until you verify sign-in and account isolation against your Supabase project.

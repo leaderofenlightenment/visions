@@ -11,6 +11,7 @@ import { Dialog } from './dialog'
 import { agentIcons, domainIcons, moduleIcons, navIcons, outputIcons } from './icons'
 import { NeuralNetwork } from './neural-network'
 import { Wave } from './wave'
+import { PersonalWorkspace } from './personal-workspace'
 
 type Overlay =
   | { kind: 'palette' | 'notifications' | 'profile' | 'plan' }
@@ -93,6 +94,7 @@ function KnowledgeMap() {
 }
 
 export function Nexus() {
+  const [lifestyleSection, setLifestyleSection] = useState<'habit' | 'journal'>('habit')
   const [overlay, setOverlay] = useState<Overlay | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -381,12 +383,19 @@ export function Nexus() {
           <h2>Privacy and services</h2>
           <p className="muted">Display preferences and workflow drafts are stored in this browser. Use this preview with non-sensitive task descriptions. Authentication and provider services are unconfigured.</p>
         </section>}
-        {(selectedModule || destination === 'codex' || destination === 'analytics') && <section className="panel workspace-surface empty-workspace">
+        {destination === 'lifestyle' && <>
+          <div className="personal-actions" aria-label="Lifestyle workspace">
+            <button className="secondary-button" aria-pressed={lifestyleSection === 'habit'} onClick={() => setLifestyleSection('habit')}>Daily habits</button>
+            <button className="secondary-button" aria-pressed={lifestyleSection === 'journal'} onClick={() => setLifestyleSection('journal')}>Lifestyle journal</button>
+          </div>
+          <PersonalWorkspace key={lifestyleSection} kind={lifestyleSection}/>
+        </>}
+        {destination === 'relationships' && <PersonalWorkspace key="relationships" kind="relationship"/>}
+        {destination === 'projects' && <PersonalWorkspace key="projects" kind="project"/>}
+        {(destination === 'business' || destination === 'codex' || destination === 'analytics') && <section className="panel workspace-surface empty-workspace">
           <FolderOpen size={28}/>
           <h2>{destination === 'analytics' ? 'No execution data' : 'Workspace preview'}</h2>
-          <p className="muted">{destination === 'lifestyle' ? 'Habits, routines, and journals arrive with the Functional Personal OS.'
-            : destination === 'business' ? 'Article, audio, and visual production arrive with the Creation Engine.'
-            : destination === 'relationships' ? 'Private profiles and the relationship graph arrive with authenticated storage.'
+          <p className="muted">{destination === 'business' ? 'Article, audio, and visual production arrive with the Creation Engine.'
             : destination === 'codex' ? 'Personal memory and authenticated storage are planned for a later phase.'
             : 'Usage and performance reporting will appear when workflow execution is configured.'}</p>
           <button className="secondary-button" onClick={openPlan}>Draft a workflow</button>
@@ -452,7 +461,7 @@ export function Nexus() {
     {overlay?.kind === 'notifications' && <Dialog title="Notifications" onClose={() => setOverlay(null)}><p className="muted">No notifications or pending approvals.</p></Dialog>}
     {overlay?.kind === 'profile' && <Dialog title="Local profile" label="PHASE 01" onClose={() => setOverlay(null)}>
       <p className="status-note"><LockKeyhole size={16}/> Local browser workspace</p>
-      <p className="muted">Account sign-in becomes available with the Functional Personal OS.</p>
+      <p className="muted">Sign in from Lifestyle, Relationships, or Projects to access private records.</p>
       <button className="secondary-button" onClick={() => navigate('settings')}>Open settings</button>
     </Dialog>}
     {notice && <div className="toast"><span>{notice}</span><button className="icon-button" aria-label="Dismiss message" onClick={() => setNotice('')}><X size={14}/></button></div>}

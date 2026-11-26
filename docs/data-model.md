@@ -16,3 +16,8 @@ The Phase 02 foundation introduces `personal_records` and `habit_completions`. A
 Index owner plus date on activity tables, child foreign keys, owner plus normalized names for relationship search, GIN on authorized full-text documents and an embedding index appropriate to the selected vector size. Deduplicate habit completions by habit and local calendar date. Scope unique workflow idempotency keys by owner. Passages retain edition, translation, locator, license and provenance. Keep relationship records outside general retrieval.
 
 Private storage uses owner-prefixed paths and short-lived authorized URLs. Only server code can access API secrets. Sensitive fields require a threat model and a key rotation plan before enabling persistence. Authenticated deletion cascades through owned records, revokes asset access and reports scheduled backup expiry. Verify isolation with at least two users and anonymous sessions against actual RLS policies, including attempts to create cross-owner links. Validate who can create workflow events and approvals separately from who can read them.
+
+`visions_frameworks` stores one bounded, versioned idea graph per account.
+The API validates domain membership and edges, then replaces the graph using
+the expected revision. RLS isolates rows and the account foreign key cascades
+on user deletion. Browser-only graphs live in a separate local store.

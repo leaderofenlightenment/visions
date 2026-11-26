@@ -1,6 +1,8 @@
 # VISIONS Reality Codex
 
-**The Nexus** is the Phase 01 workspace for the Digital Liturgy Masterplan. It includes the interactive eight-node neural scene, seven agent workspaces, the nine-domain catalog, content entry points, a keyboard command palette and the three Reality Module previews.
+The Nexus brings Lifestyle, Business, and Relationships into one framework.
+Its seven VISIONS lenses help you reflect on purpose, connections, meaning,
+patterns, next steps, limits, and sustainable rhythms.
 
 ## Run locally
 
@@ -11,78 +13,57 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. Use Ctrl+K or Command+K to search. Use the orbs to inspect an agent, and use **Plan multi-agent workflow** to create a local draft. Projects lists drafts and their suggested roles. Settings provides reduced motion and lightweight rendering options.
+Open http://localhost:3000 and select the **VISIONS Core**. Choose a lens and one
+or more life domains, then save an idea. Link related ideas across lenses and
+domains. The Nexus adds clickable branches as you fill in the framework, and
+each lens has a smaller map of its ideas. Settings controls motion and network
+detail. The Core can export the framework as JSON.
+
+Without Supabase, the framework is stored in the current browser. Keep local
+ideas non-sensitive. Supabase account data and the browser framework are
+separate. Configuring Supabase does not upload browser ideas.
 
 ```sh
-npm run lint
-npm run typecheck
-npm test
-npm run build
-npm start
+npm run verify
 ```
 
-The automated suite covers agent identity and draft routing, catalog search, keyboard palette focus, draft persistence, module visibility, motion preferences, and zoom controls. The managed preview server could not bind its port in the development environment, so manual browser checks remain open.
+This runs lint, TypeScript checks, automated tests, and a production build.
+See the [deployment guide](docs/deployment.md) for hosted verification.
 
-## Configuration and deployment
+## Supabase setup
 
-Phase 01 requires no credentials. The environment template documents names reserved for future services. Filling them now does not enable integrations. This build can run on any Next.js-compatible Node host. For a Vercel preview, import the intended private repository, select Next.js, set the Root Directory to this project if needed, and use `npm ci` and `npm run build`. Restrict access using the deployment platform. Production deployment follows authentication, database isolation, and operational checks.
+Create a Supabase project. Apply the SQL files in
+[`supabase/migrations`](supabase/migrations) in filename order, skipping any
+migration already applied to that project. The fourth migration adds
+owner-scoped framework storage. Create an email/password user under
+**Authentication → Users**. Copy `.env.example` to `.env.local`, set
+`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and sign in
+from Lifestyle, Relationships, or Projects. Use the publishable key.
 
-This preview saves display preferences and workflow drafts in browser storage without authentication or encryption. Use non-sensitive task descriptions. Draft planning uses local rules and performs no model calls, publishing, or media generation.
+The personal workspaces include habits, calendars, journals, relationship
+profiles and projects. The database applies row-level security to personal
+records, the framework, and the source library.
+
+## Source library and Core reflection
+
+In **Knowledge**, save short passages with attribution, edition, locator,
+provenance, and rights. Browse and search by title. To correct a passage,
+create a replacement and remove the obsolete record.
+
+For optional AI reflection, configure server-only `OPENAI_API_KEY` and a
+Responses API-compatible `OPENAI_MODEL`. Sign in and open **Reflect with the
+VISIONS Core**. The Core considers all seven lenses and prompts you to connect
+the three life domains. Each run sends the submitted intention and up to
+three explicitly selected passages after you grant consent. Framework ideas,
+journals, and relationship records are outside the request. The database
+allows one run per account per calendar minute, and provider calls have a
+45-second deadline. The UI shows the selected passages for citation checking.
+
+Story and Negation are lenses for meaning and discernment. Article production,
+automated editorial review, media rendering, and external publishing are
+deferred. See the [development roadmap](docs/roadmap.md) for remaining work.
 
 - [Project requirements](AGENTS.md)
 - [Architecture](docs/architecture.md)
 - [Design system](docs/design.md)
 - [Database and security model](docs/data-model.md)
-- [Development roadmap](docs/roadmap.md)
-
-## Phase 02 personal workspace setup
-
-For the authenticated workspaces, create a Supabase project, then apply
-`supabase/migrations/202611260001_personal_os.sql` in its SQL Editor. Create an
-email/password user in **Authentication → Users**. Copy `.env.example` to
-`.env.local` and set `NEXT_PUBLIC_SUPABASE_URL` and
-`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` using the project's connection details.
-Use the publishable key, and keep the service-role key out of the app. Restart
-the development server and sign in from Lifestyle, Relationships, or Projects.
-
-The Phase 02 foundation includes private records, daily habit completions,
-calendar windows, an editable journal, grouped relationship profiles, and
-projects. Workflow drafts from Phase 01 stay in the browser. Use test records
-until you verify sign-in and account isolation against your Supabase project.
-
-## Phase 03 live agent setup
-
-After setting up Supabase, apply
-`supabase/migrations/202611260002_agent_limits.sql`. Add a server-side
-`OPENAI_API_KEY` and a Responses API-compatible `OPENAI_MODEL` to
-`.env.local`, then restart the server. Sign in from a personal workspace,
-open an agent or the VISIONS Core, enter a non-sensitive intention, and
-check the permission box before running.
-
-Single-agent runs use the selected role. The Core may use up to three roles
-in sequence, including a final discernment step when routed. The API permits
-one run per user per calendar minute and imposes a 45-second provider
-deadline. It sends the submitted intention and previous steps from that
-run without querying personal workspaces. This foundation shows completed
-outputs in the current dialog. Persistent run history, retrieval, approvals,
-and live network event streaming are future work. The rate-limit table
-should have a retention job before production.
-
-## Source library and text studios
-
-Apply `supabase/migrations/202611260003_source_library.sql` after the first
-two migrations. Sign in and open **Knowledge** to save short licensed
-passages with source type, attribution, citation locator, provenance, and
-rights. Sources are private and searchable by title. To correct a passage,
-create a replacement and remove the obsolete record.
-
-You can select up to three passages for a run. The consent checkbox covers
-the intention and selected source records sent to OpenAI. Each submitted
-passage gets an identifier such as `[S1]`, and the workspace shows the exact
-references for review. Enter only text you have permission to send to the
-provider. Model citations still require editorial verification.
-
-In **Business** or **Content Library**, choose a format and submit a brief.
-Story drafts and Negation reviews. Download both as Markdown with the source
-references. Music and visuals are text briefs. Media providers, saved content
-projects, approval queues, publication and deployment remain separate work.

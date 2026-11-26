@@ -81,6 +81,7 @@ export function PersonalWorkspace({ kind }: { kind: RecordKind }) {
       setDeleteId(null)
       setDay(localDay())
       setAccount({ configured: true, signedIn: result.signedIn })
+      window.dispatchEvent(new Event('visions-account'))
     })
   }
 

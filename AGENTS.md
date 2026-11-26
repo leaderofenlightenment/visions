@@ -7,3 +7,5 @@ Technology serves the human person. Protect human dignity, truthfulness, freedom
 Show real runtime state. Identify examples as demonstrations and leave AI, publishing and other external actions unavailable when their prerequisites are absent. Require explicit human approval tied to an asset revision before publishing. Keep credentials server-side. Apply owner-scoped authorization and test tenant isolation when persistence lands.
 
 Preserve keyboard access and reduced-motion rendering. Before reporting a phase complete, run lint, type checking, relevant tests and a production build. Report incomplete items, credential needs and limitations.
+
+The seven VISIONS nodes are lenses for examining the whole of life across Lifestyle, Business, and Relationships. Keep the Core and user-authored idea network central. Defer article drafting, automated editorial review, and media studios until the user asks to specialize.

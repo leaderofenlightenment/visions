@@ -1,16 +1,13 @@
 'use client'
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { agents, type AgentId } from '@/lib/codex'
 import type { Source } from '@/lib/sources'
-import type { StudioFormat } from '@/lib/studio'
-import type { AgentResult } from '@/lib/agent-runtime'
 
 type Citation = Source & { citation: string }
 
-export function AgentRun({ agent, format }: { agent?: AgentId; format?: StudioFormat }) {
+export function AgentRun() {
   const [access, setAccess] = useState<{ configured: boolean; signedIn: boolean } | null>(null)
-  const [results, setResults] = useState<AgentResult[]>([])
+  const [reflection, setReflection] = useState('')
   const [available, setAvailable] = useState<Source[]>([])
   const [sourceError, setSourceError] = useState('')
   const [sourceQuery, setSourceQuery] = useState('')
@@ -41,12 +38,12 @@ export function AgentRun({ agent, format }: { agent?: AgentId; format?: StudioFo
   }, [access?.signedIn, sourceQuery])
 
   function exportDraft() {
-    const heading = results.map(result => '## ' + result.agent + '\n\n' + result.text).join('\n\n')
+    const heading = '## VISIONS Core reflection\n\n' + reflection
     const references = citations.map(source => '[' + source.citation + '] ' + [source.title, source.author, source.edition, source.locator, source.provenance].filter(Boolean).join(' · ')).join('\n')
     const objectUrl = URL.createObjectURL(new Blob([heading + (references ? '\n\n## Selected sources\n\n' + references : '')], { type: 'text/markdown' }))
     const link = document.createElement('a')
     link.href = objectUrl
-    link.download = 'visions-draft.md'
+    link.download = 'visions-reflection.md'
     link.click()
     setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
   }
@@ -59,16 +56,16 @@ export function AgentRun({ agent, format }: { agent?: AgentId; format?: StudioFo
     active.current = control
     setBusy(true)
     setError('')
-    setResults([])
+    setReflection('')
     setCitations([])
     try {
       const response = await fetch('/api/agents', {
         method: 'POST', signal: control.signal, headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agent: agent ?? null, format, intention: form.get('intention'), consent: form.get('consent') === 'on', sourceIds: selected.map(source => source.id) }),
+        body: JSON.stringify({ intention: form.get('intention'), consent: form.get('consent') === 'on', sourceIds: selected.map(source => source.id) }),
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error)
-      setResults(result.results)
+      setReflection(result.reflection)
       setCitations(result.sources ?? [])
     } catch (error) {
       setError(control.signal.aborted ? 'Stopped waiting for this run.' : error instanceof Error ? error.message : 'The run failed.')
@@ -79,13 +76,13 @@ export function AgentRun({ agent, format }: { agent?: AgentId; format?: StudioFo
   }
 
   return <section className="dialog-section">
-    <h3>Live execution</h3>
+    <h3>Core reflection</h3>
     {error && <p role="alert">{error}</p>}
     {!access && !error && <p role="status">Checking agent access…</p>}
     {access && !access.configured && <p className="muted">AI provider unconfigured. See the README for setup.</p>}
-    {access?.configured && !access.signedIn && <p className="muted">Sign in from Lifestyle, Relationships, or Projects to run an agent.</p>}
+    {access?.configured && !access.signedIn && <p className="muted">Sign in from Lifestyle, Relationships, or Projects to use Core reflection.</p>}
     {access?.signedIn && <form className="personal-form" onSubmit={run}>
-      <label>Intention <textarea name="intention" required maxLength={1000} rows={4} placeholder={format ? 'Describe the intended audience, theme, and outcome' : undefined}/></label>
+      <label>Intention <textarea name="intention" required maxLength={1000} rows={4} placeholder="Share a non-sensitive question spanning your life domains"/></label>
       <details>
         <summary>Choose sources ({selected.length}/3)</summary>
         <label>Find by title <input maxLength={100} value={sourceQuery} onChange={event => setSourceQuery(event.target.value)}/></label>
@@ -98,15 +95,14 @@ export function AgentRun({ agent, format }: { agent?: AgentId; format?: StudioFo
           onClick={() => setSelected(items => items.length < 3 ? [...items, source] : items)}>{source.title} · {source.locator}</button>)}
       </details>
       <label><span><input type="checkbox" name="consent" required style={{ width: 'auto' }}/> Send this intention and selected passages to OpenAI</span></label>
-      <div className="personal-actions"><button className="primary-button" disabled={busy}>Run {format ? 'draft and review' : agent ? 'agent' : 'workflow'}</button>
+      <div className="personal-actions"><button className="primary-button" disabled={busy}>Reflect across all seven lenses</button>
         {busy && <button type="button" className="secondary-button" onClick={() => active.current?.abort()}>Stop waiting</button>}
       </div>
     </form>}
     {busy && <p role="status">Run in progress…</p>}
-    {results.length > 0 && <button className="secondary-button" onClick={exportDraft}>Download Markdown draft</button>}
-    {results.map(result => <article className="personal-record" key={result.agent}>
-      <strong>{agents.find(agent => agent.id === result.agent)?.name}</strong><p>{result.text}</p>
-    </article>)}
+    {reflection && <article className="personal-record"><strong>VISIONS Core</strong><p>{reflection}</p>
+      <button className="secondary-button" onClick={exportDraft}>Download reflection</button>
+    </article>}
     {citations.length > 0 && <details><summary>Selected source references</summary>
       {citations.map(source => <article key={source.id} className="personal-record">
         <strong>[{source.citation}] {source.title}</strong><small>{source.author} · {source.locator}</small><p>{source.passage}</p><p>{source.provenance}</p>

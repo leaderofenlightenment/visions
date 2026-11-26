@@ -12,3 +12,16 @@ Production target is a private GitHub repository, Vercel and Supabase with separ
 
 - [Next.js App Router installation](https://nextjs.org/docs/app/getting-started/installation)
 - [Supabase row-level security](https://supabase.com/docs/guides/database/postgres/row-level-security)
+
+## Holistic framework
+
+The Core owns a graph of reflections classified by one VISIONS lens and one
+or more life domains. Supabase persists the graph as one owner-scoped,
+revisioned aggregate. This makes adding an idea and its connections atomic.
+The device mode uses a distinct browser store. The client projects saved
+ideas into domain branches and nested lens maps. Motion on those paths is
+visual feedback about the graph structure. It does not report model activity.
+
+Optional Core reflection uses a single bounded Responses API call. The server
+adds the seven lens prompts, the user's explicit intention and any selected
+licensed passages. It does not query the framework or personal workspaces.

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { after, afterEach, test } from 'node:test'
+import { after, afterEach, beforeEach, mock, test } from 'node:test'
 import { JSDOM } from 'jsdom'
 
 const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'https://nexus.test' })
@@ -9,6 +9,7 @@ Object.assign(globalThis, {
   document: window.document,
   localStorage: window.localStorage,
   HTMLElement: window.HTMLElement,
+  FormData: window.FormData,
   Event: window.Event,
   HashChangeEvent: window.HashChangeEvent,
 })
@@ -22,17 +23,23 @@ window.HTMLCanvasElement.prototype.getContext = () => null
 window.HTMLDialogElement.prototype.showModal ??= function () { this.open = true }
 window.HTMLDialogElement.prototype.close ??= function () { this.open = false }
 
-const { cleanup, fireEvent, render, screen, within } = await import('@testing-library/react')
+const { cleanup, fireEvent, render, screen, waitFor, within } = await import('@testing-library/react')
 const { Nexus } = await import('../components/nexus')
+
+beforeEach(() => {
+  mock.method(globalThis, 'fetch', async (path: string) => Response.json(path === '/api/framework'
+    ? { mode: 'device' } : { configured: false, signedIn: false }))
+})
 
 afterEach(() => {
   cleanup()
+  mock.restoreAll()
   window.localStorage.clear()
   window.history.replaceState(null, '', '/')
 })
 after(() => window.close())
 
-test('opens the keyboard palette, finds an agent, then returns focus to the launcher', () => {
+test('opens the keyboard palette, finds a lens, then returns focus to the launcher', async () => {
   render(<Nexus />)
   const opener = screen.getByRole('button', { name: 'Open command palette' })
   opener.focus()
@@ -45,7 +52,8 @@ test('opens the keyboard palette, finds an agent, then returns focus to the laun
   assert.equal(document.activeElement, result)
   fireEvent.click(result)
   assert.ok(screen.getByRole('dialog', { name: 'Negation' }))
-  assert.ok(screen.getByRole('heading', { name: 'Live execution' }))
+  await screen.findByRole('region', { name: 'VISIONS framework' })
+  assert.ok(screen.getByText(/what might you need to question/i))
   fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }))
   assert.equal(document.activeElement, opener)
 })
@@ -54,15 +62,15 @@ test('saves a workflow intention, restores it on remount, and deletes it', () =>
   const view = render(<Nexus />)
   fireEvent.click(screen.getByRole('button', { name: 'Plan multi-agent workflow' }))
   const intention = screen.getByRole('textbox', { name: 'Task intention' })
-  fireEvent.change(intention, { target: { value: 'Research and draft an article' } })
+  fireEvent.change(intention, { target: { value: 'Serve others through work without crowding out family time' } })
   fireEvent.click(screen.getByRole('button', { name: 'Save local draft' }))
   const project = screen.getByRole('article')
-  assert.ok(within(project).getByText('Research and draft an article'))
+  assert.ok(within(project).getByText('Serve others through work without crowding out family time'))
   assert.ok(within(project).getByText('Negation'))
   view.unmount()
 
   render(<Nexus />)
-  assert.ok(screen.getByRole('heading', { name: 'Research and draft an article' }))
+  assert.ok(screen.getByRole('heading', { name: 'Serve others through work without crowding out family time' }))
   fireEvent.click(screen.getByRole('button', { name: 'Delete draft' }))
   assert.equal(screen.queryByRole('article'), null)
 })
@@ -85,4 +93,32 @@ test('exposes zoom and reset controls for the eight-node network', () => {
   assert.equal(network.getByRole('status').textContent, '120%')
   fireEvent.click(network.getByRole('button', { name: 'Reset network view' }))
   assert.equal(network.getByRole('status').textContent, '100%')
+})
+
+
+test('adds connected framework ideas and opens their live domain branch', async () => {
+  const view = render(<Nexus />)
+  fireEvent.click(screen.getByRole('button', { name: 'VISIONS Core' }))
+  const dialog = within(screen.getByRole('dialog', { name: 'VISIONS Core' }))
+  await dialog.findByRole('table')
+  fireEvent.click(dialog.getByRole('button', { name: 'Vision in Lifestyle: 0 ideas' }))
+  fireEvent.change(dialog.getByRole('textbox', { name: 'Idea title' }), { target: { value: 'Protected rest' } })
+  fireEvent.click(dialog.getByRole('checkbox', { name: 'Business' }))
+  fireEvent.click(dialog.getByRole('button', { name: 'Save idea' }))
+  await dialog.findByRole('heading', { name: 'Protected rest' })
+  fireEvent.click(dialog.getByRole('button', { name: 'Integration in Relationships: 0 ideas' }))
+  fireEvent.change(dialog.getByRole('textbox', { name: 'Idea title' }), { target: { value: 'Shared evening rhythm' } })
+  fireEvent.click(dialog.getByRole('checkbox', { name: 'Protected rest · Vision' }))
+  fireEvent.click(dialog.getByRole('button', { name: 'Save idea' }))
+  await dialog.findByRole('heading', { name: 'Shared evening rhythm' })
+  assert.ok(dialog.getByRole('button', { name: 'Protected rest · Vision' }))
+  fireEvent.click(dialog.getByRole('button', { name: 'Close dialog' }))
+  const graph = within(screen.getByRole('region', { name: 'VISIONS neural network' }))
+  assert.ok(graph.getByRole('button', { name: 'Business branch, vision, 1 idea' }))
+  fireEvent.click(graph.getByRole('button', { name: 'Relationships branch, integration, 1 idea' }))
+  assert.ok(screen.getByRole('dialog', { name: 'Integration' }))
+  assert.ok(screen.getByRole('button', { name: 'Explore Shared evening rhythm' }))
+  view.unmount()
+  render(<Nexus />)
+  await waitFor(() => assert.ok(screen.getByRole('button', { name: 'Relationships branch, integration, 1 idea' })))
 })

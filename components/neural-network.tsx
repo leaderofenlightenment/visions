@@ -2,13 +2,17 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { Maximize, Minus, Plus, Waypoints } from 'lucide-react'
-import { agents, type AgentId } from '@/lib/codex'
+import { agents, type AgentId, type ModuleId } from '@/lib/codex'
+import type { Framework } from '@/lib/framework'
+import { FrameworkBranches } from './framework-branches'
 import { agentIcons } from './icons'
 import { BrandMark } from './brand'
 import { core, drawNetwork, points, sampleCurve } from './neural-scene'
 
-export function NeuralNetwork({ onSelect, reduced, lite }: {
+export function NeuralNetwork({ onSelect, onBranch, graph, reduced, lite }: {
   onSelect: (node: AgentId | 'core') => void
+  onBranch: (lens: AgentId, domain: ModuleId) => void
+  graph: Framework
   reduced: boolean
   lite: boolean
 }) {
@@ -45,11 +49,11 @@ export function NeuralNetwork({ onSelect, reduced, lite }: {
       if (reduced || lite) return
       const draw = (now: number) => {
         pulse.clearRect(0, 0, width, height)
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 24; i++) {
           const curve = curves[(i * 7 + Math.floor(i / 4)) % curves.length]
           const t = (now / (4700 + i * 458) + i * .19) % 1
           const [x, y] = sampleCurve(curve, t)
-          pulse.globalAlpha = Math.sin(t * Math.PI) * .6
+          pulse.globalAlpha = Math.sin(t * Math.PI) * .72
           pulse.shadowBlur = 8
           pulse.shadowColor = curve.color
           pulse.fillStyle = curve.color
@@ -115,9 +119,9 @@ export function NeuralNetwork({ onSelect, reduced, lite }: {
   return <section className="network-panel" aria-label="VISIONS neural network">
     <div className="network-heading">
       <span><Waypoints size={14}/> VISIONS INTELLIGENCE NETWORK</span>
-      <small>8 NODES</small>
+      <small>{graph.ideas.length ? graph.ideas.length + ' ' + (graph.ideas.length === 1 ? 'IDEA' : 'IDEAS') : '7 LENSES'}</small>
     </div>
-    <div className="network-frame" ref={frame} onPointerDown={beginPan} onPointerMove={movePan}
+    <div className={`network-frame${graph.ideas.length ? ' has-framework' : ''}`} ref={frame} onPointerDown={beginPan} onPointerMove={movePan}
       onPointerLeave={event => {
         event.currentTarget.style.removeProperty('--depth-x')
         event.currentTarget.style.removeProperty('--depth-y')
@@ -134,29 +138,31 @@ export function NeuralNetwork({ onSelect, reduced, lite }: {
               stroke={focusPoint.color} />
           })}
         </svg>}
+        <FrameworkBranches graph={graph} focused={hovered} onSelect={onBranch}/>
         <button className="orb core-orb" style={{ '--x': core.x + '%', '--y': core.y + '%', '--accent': core.color } as CSSProperties}
           onClick={() => onSelect('core')} onMouseEnter={() => setHovered('core')} onMouseLeave={() => setHovered(null)}
-          onFocus={() => setHovered('core')} onBlur={() => setHovered(null)} title="VISIONS Core · Coordination">
-          <BrandMark size={49}/><strong>VISIONS</strong><small>CORE</small>
+          onFocus={() => setHovered('core')} onBlur={() => setHovered(null)} aria-label="VISIONS Core" title="VISIONS Core · Build your framework">
+          <BrandMark size={49}/><strong>VISIONS</strong><small>{graph.ideas.length ? `${graph.ideas.length} IDEAS` : 'BUILD FRAMEWORK'}</small>
         </button>
         {agents.map(agent => {
           const Icon = agentIcons[agent.id]
+          const count = graph.ideas.filter(idea => idea.lens === agent.id).length
           return <button className="orb agent-orb" key={agent.id}
             style={{ '--x': agent.x + '%', '--y': agent.y + '%', '--accent': agent.color } as CSSProperties}
             onClick={() => onSelect(agent.id)} onMouseEnter={() => setHovered(agent.id)} onMouseLeave={() => setHovered(null)}
             onFocus={() => setHovered(agent.id)} onBlur={() => setHovered(null)}
             title={`${agent.name} · ${agent.role}`}>
-            <Icon size={19}/><strong>{agent.name}</strong><small>{agent.role}</small>
+            <Icon size={19}/><strong>{agent.name}</strong><small>{count ? `${count} ${count === 1 ? 'idea' : 'ideas'}` : agent.role}</small>
           </button>
         })}
       </div>
       {hovered && <div className="network-tooltip" role="status">
-        {hovered === 'core' ? 'VISIONS Core · Network coordination' : agents.find(agent => agent.id === hovered)?.description}
-        <span>Open workspace to check execution access</span>
+        {hovered === 'core' ? 'VISIONS Core · Your framework across the three life domains' : agents.find(agent => agent.id === hovered)?.description}
+        <span>Open the framework to explore and connect ideas</span>
       </div>}
     </div>
     <div className="network-footer">
-      <span><i/> Ambient visualization</span>
+      <span><i/> Ambient motion · {graph.ideas.length ? 'Saved connections' : 'Open the Core to begin'}</span>
       <div className="zoom-controls" aria-label="Network view controls">
         <button type="button" aria-label="Zoom out" disabled={zoom <= .8} onClick={() => setZoom(value => Math.max(.8, value - .2))}><Minus size={13}/></button>
         <output aria-live="polite">{Math.round(zoom * 100)}%</output>

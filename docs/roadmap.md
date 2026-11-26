@@ -3,11 +3,12 @@
 - [x] Inspect workspace and design reference
 - [x] Establish architecture, design system and data model
 - [x] Phase 01 implementation · Nexus shell, procedural graph, seven agent workspaces, knowledge and outputs, command palette and responsive settings
-- [ ] Phase 01 manual QA · inspect desktop and mobile rendering in a browser. The managed preview could not bind its local port in this run.
+- [x] Desktop browser QA · build a framework, see the branches, and follow an idea connection.
+- [ ] Manual narrow-screen and assistive-technology QA.
 - [ ] Phase 02 · Auth, owner-scoped persistence, habits, calendar, journals, relationships and projects
 - [ ] Phase 03 · Reasoning adapters, scoped retrieval, bounded workflows, runtime event visualization, usage and cost
 - [ ] Phase 04 · Licensed source ingestion, versioned theological knowledge and reviewable provenance
-- [ ] Phase 05 · Article, image and music workspaces, derivative assets, editorial review and approvals
+- [ ] Phase 05 · Specialist studios and production workflows are deferred while the holistic framework matures.
 - [ ] Phase 06 · Vercel deployment, security and accessibility validation, monitoring, backups and operational documentation
 
 ### Phase 02 status
@@ -19,12 +20,13 @@
 - [ ] Verify authentication and persistence end to end against a configured Supabase instance
 - [x] Filterable relationship clusters with condition indicators and zoom
 - [ ] Add flexible schedules, reminders, routine templates, richer relationship history, and graph navigation
-- [ ] Complete data export, account deletion, and production-sensitive storage review
+- [x] Owner-scoped framework ideas, connections, and framework JSON export
+- [ ] Complete account-wide data export, account deletion, and production-sensitive storage review
 
 ### Phase 03 status
 
-- [x] Configurable server-side Responses API adapter and seven role instructions
-- [x] Authenticated agent and Core execution with consent, request deadline, and a database-backed rate limit
+- [x] Configurable server-side Core reflection across seven lenses and three life domains
+- [x] Authentication, consent, request deadline, and a database-backed rate limit
 - [ ] Verify sign-in and live provider calls against configured services
 - [ ] Persist resumable workflows and conversations, source retrieval, usage, approvals, and event-driven network highlights
 
@@ -34,8 +36,13 @@
 - [x] Consent-based retrieval by selected passage ID with visible citation references
 - [ ] Curated verified corpus, editorial version history, document ingestion, semantic retrieval, and knowledge graph editing
 
-### Phase 05 status
+### Phase 05 direction
 
-- [x] Text studios for articles, posts, threads, visual briefs, and soundtrack briefs
-- [x] Story drafting, Negation review, and Markdown export with source references
-- [ ] Durable content projects and derivative tracking, media generation, approval queues, and publication workflow
+- [x] The Business workspace applies the full framework to creating, alongside the other life domains.
+- [ ] Specialized article drafting, editorial review, media tools, and publishing remain deferred.
+
+### Phase 06 status
+
+- [x] Repeatable verification command and hosted deployment runbook
+- [ ] Configure Supabase, OpenAI, and the hosting project for an end-to-end preview
+- [ ] Validate production security, mobile accessibility, backups, restores, and monitoring

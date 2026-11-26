@@ -1,8 +1,6 @@
 import { citedSources, sourceColumns, type Source } from '@/lib/sources'
 import { isUuid } from '@/lib/personal'
-import { isStudioFormat, studioBriefs } from '@/lib/studio'
-import { agents } from '@/lib/codex'
-import { executionPlan, openAIProvider, runAgents } from '@/lib/agent-runtime'
+import { openAIProvider, reflectWithCore } from '@/lib/agent-runtime'
 import { jsonBody, supabaseServer } from '@/lib/supabase-server'
 
 export const maxDuration = 60
@@ -20,12 +18,10 @@ export async function GET() {
 export async function POST(request: Request) {
   const body = await jsonBody(request)
   const prompt = typeof body?.intention === 'string' ? body.intention.trim() : ''
-  const preferred = agents.find(agent => agent.id === body?.agent)?.id
-  if (!prompt || prompt.length > 1000 || body?.consent !== true || (body.agent !== null && !preferred)) {
+  if (!prompt || prompt.length > 1000 || body?.consent !== true) {
     return json({ error: 'Enter an intention and authorize sending it to OpenAI.' }, 400)
   }
-  const format = body.format ?? null
-  if (format !== null && !isStudioFormat(format)) return json({ error: 'Invalid studio format.' }, 400)
+  if (body.agent != null || body.format != null) return json({ error: 'This workspace supports holistic Core reflection.' }, 400)
   const ids: unknown = body.sourceIds ?? []
   if (!Array.isArray(ids) || ids.length > 3 || !ids.every(isUuid) || new Set(ids).size !== ids.length) {
     return json({ error: 'Select up to three distinct sources.' }, 400)
@@ -51,10 +47,8 @@ export async function POST(request: Request) {
   const signal = AbortSignal.any([request.signal, AbortSignal.timeout(45000)])
   try {
     const context = citedSources(sources)
-    const brief = format ? studioBriefs[format] + '\n\nUser brief: ' + prompt : prompt
-    const roles = format ? ['story', 'negation'] as const : executionPlan(prompt, preferred)
-    const results = await runAgents(brief, roles, openAIProvider(key, model), signal, context)
-    return json({ results, sources: context })
+    const reflection = await reflectWithCore(prompt, openAIProvider(key, model), signal, context)
+    return json({ reflection, sources: context })
   } catch {
     return json({ error: signal.aborted ? 'The run ended before completion.' : 'The model provider could not complete the run.' }, signal.aborted ? 504 : 502)
   }

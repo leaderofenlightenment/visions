@@ -1,30 +1,22 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { executionPlan, runAgents } from '../lib/agent-runtime.ts'
+import { reflectWithCore } from '../lib/agent-runtime.ts'
 
-test('limits a Core workflow to three roles and places discernment last', () => {
-  assert.deepEqual(executionPlan('Research and draft an article with an ethical review'), ['integration', 'story', 'negation'])
-  assert.deepEqual(executionPlan('Research an article', 'vision'), ['vision'])
-})
-
-test('passes only the supplied intention and prior output between agents', async () => {
-  const inputs: string[] = []
-  const results = await runAgents('Draft a piece', ['story', 'negation'], async input => {
-    inputs.push(input.prompt)
-    return input.instructions.includes('Negation') ? 'Review' : 'Draft'
-  }, new AbortController().signal)
-  assert.deepEqual(JSON.parse(inputs[0]), { intention: 'Draft a piece', earlier: [] })
-  assert.deepEqual(JSON.parse(inputs[1]).earlier, [{ agent: 'story', text: 'Draft' }])
-  assert.deepEqual(results, [{ agent: 'story', text: 'Draft' }, { agent: 'negation', text: 'Review' }])
-})
-
-test('stops routing after cancellation', async () => {
-  const controller = new AbortController()
+test('Core requests one holistic reflection across all seven lenses and three domains', async () => {
   let calls = 0
-  await assert.rejects(runAgents('Draft', ['story', 'negation'], async () => {
+  const result = await reflectWithCore('Balance work and rest', async input => {
     calls++
-    controller.abort()
-    return 'Draft'
-  }, controller.signal), { name: 'AbortError' })
+    assert.match(input.instructions, /Vision[\s\S]*Integration[\s\S]*Story[\s\S]*Insight[\s\S]*Outcome[\s\S]*Negation[\s\S]*System/)
+    assert.match(input.instructions, /Lifestyle.*Business.*Relationships/)
+    assert.deepEqual(JSON.parse(input.prompt), { intention: 'Balance work and rest' })
+    return 'Reflection'
+  }, new AbortController().signal)
+  assert.equal(result, 'Reflection')
   assert.equal(calls, 1)
+})
+
+test('skips the provider after cancellation', async () => {
+  const controller = new AbortController()
+  controller.abort()
+  await assert.rejects(reflectWithCore('Reflect', async () => assert.fail('Provider called'), controller.signal), { name: 'AbortError' })
 })

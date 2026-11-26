@@ -15,7 +15,7 @@ export async function supabaseServer() {
   })
 }
 
-export async function jsonBody(request: Request): Promise<Record<string, unknown> | null> {
+export async function jsonBody(request: Request, maxBytes = 65536): Promise<Record<string, unknown> | null> {
   if (request.headers.get('origin') !== new URL(request.url).origin) return null
   if (!request.headers.get('content-type')?.startsWith('application/json')) return null
   const reader = request.body?.getReader()
@@ -28,7 +28,7 @@ export async function jsonBody(request: Request): Promise<Record<string, unknown
       const { value, done } = await reader.read()
       if (done) break
       size += value.byteLength
-      if (size > 65536) {
+      if (size > maxBytes) {
         await reader.cancel()
         return null
       }

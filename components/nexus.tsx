@@ -2,10 +2,10 @@
 
 import { useEffect, useState, useSyncExternalStore, type CSSProperties, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import {
-  Activity, Bell, ChevronDown, ChevronRight, CircleHelp, Command, Crosshair, FolderOpen, Layers3,
+  Activity, Bell, ChevronDown, ChevronRight, Command, Crosshair, FolderOpen, Layers3,
   LockKeyhole, Menu, Network, Plus, Search, Settings2, Sparkles, Workflow, X,
 } from 'lucide-react'
-import { agents, destinations, domains, matches, modules, outputs, planAgents, stages, type AgentId, type Destination, type Draft, type ModuleId } from '@/lib/codex'
+import { agents, destinations, domains, matches, modules, outputs, stages, type AgentId, type Destination, type Draft, type ModuleId } from '@/lib/codex'
 import { BrandMark } from './brand'
 import { Dialog } from './dialog'
 import { agentIcons, domainIcons, moduleIcons, navIcons, outputIcons } from './icons'
@@ -14,10 +14,12 @@ import { Wave } from './wave'
 import { SourceLibrary } from './source-library'
 import { AgentRun } from './agent-run'
 import { PersonalWorkspace } from './personal-workspace'
+import { FrameworkWorkspace } from './framework-workspace'
+import { useFramework } from './use-framework'
 
 type Overlay =
   | { kind: 'palette' | 'notifications' | 'profile' | 'plan' }
-  | { kind: 'agent'; id: AgentId | 'core' }
+  | { kind: 'agent'; id: AgentId | 'core'; domain?: ModuleId }
   | { kind: 'domain' | 'stage'; index: number }
   | { kind: 'output'; id: (typeof outputs)[number]['id'] }
 
@@ -97,6 +99,7 @@ function KnowledgeMap() {
 
 export function Nexus() {
   const [lifestyleSection, setLifestyleSection] = useState<'habit' | 'journal'>('habit')
+  const framework = useFramework()
   const [overlay, setOverlay] = useState<Overlay | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -187,14 +190,14 @@ export function Nexus() {
     }), 'Module visibility saved.')
   }
 
-  function savePlan(event: FormEvent<HTMLFormElement>, preferred?: AgentId) {
+  function savePlan(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const text = intention.trim()
     if (!text || text.length > 1000) {
       setPlanError('Enter an intention between 1 and 1,000 characters.')
       return
     }
-    const draft: Draft = { id: crypto.randomUUID(), intention: text, agents: planAgents(text, preferred), createdAt: new Date().toISOString() }
+    const draft: Draft = { id: crypto.randomUUID(), intention: text, agents: agents.map(agent => agent.id), createdAt: new Date().toISOString() }
     if (persist(data => ({ ...data, drafts: [draft, ...data.drafts] }), 'Workflow draft saved on this device.')) navigate('projects')
     else setPlanError('Browser storage is unavailable. Your draft could not be saved.')
   }
@@ -207,11 +210,11 @@ export function Nexus() {
 
   const selectedModule = modules.find(module => module.id === destination)
   const destinationName = destinations.find(([id]) => id === destination)?.[1]
-  const planForm = (preferred?: AgentId) => <form onSubmit={event => savePlan(event, preferred)} className="plan-form">
+  const planForm = () => <form onSubmit={savePlan} className="plan-form">
     <label htmlFor="intention">Task intention</label>
     <textarea id="intention" maxLength={1000} required rows={3} value={intention}
       aria-invalid={Boolean(planError)} aria-describedby={planError ? 'plan-error' : undefined}
-      onChange={event => { setIntention(event.target.value); setPlanError('') }} placeholder="Outline a philosophical article on the sublime…"/>
+      onChange={event => { setIntention(event.target.value); setPlanError('') }} placeholder="Explore a rhythm that supports work, rest, and relationships…"/>
     {planError && <p id="plan-error" className="status-note" role="alert">{planError}</p>}
     <button className="primary-button" type="submit"><Plus size={16}/> Save local draft</button>
   </form>
@@ -256,7 +259,7 @@ export function Nexus() {
             <h1>The Digital Liturgy <em>Masterplan</em></h1>
             <p>Ancient wisdom. Modern intelligence.</p>
           </div>
-          <span className="preview-badge"><i/> PHASE 01 · PREVIEW</span>
+          <span className="preview-badge"><i/> VISIONS FRAMEWORK</span>
         </div>
         <div className="dashboard-grid">
           <section className="panel knowledge-panel" aria-labelledby="domains-heading">
@@ -267,31 +270,33 @@ export function Nexus() {
             <button className="panel-link" onClick={() => navigate('knowledge')}>Explore knowledge <ChevronRight size={13}/></button>
             <Wave offset={1.7}/>
           </section>
-          <NeuralNetwork onSelect={selectAgent} reduced={reduced} lite={lite}/>
-          <section className="panel outputs-panel" aria-labelledby="outputs-heading">
-            <h2 className="panel-heading" id="outputs-heading"><Layers3 size={16}/> Content Outputs</h2>
-            <div className="output-list">{outputs.map(output => {
-              const Icon = outputIcons[output.id]
-              return <button key={output.id} className="output-button" style={accent(output.color)} onClick={() => setOverlay({ kind: 'output', id: output.id })}>
-                <span className="output-icon"><Icon size={18}/></span><span><strong>{output.name}</strong><small>{output.detail}</small></span>
+          <NeuralNetwork onSelect={selectAgent} graph={framework.graph}
+            onBranch={(lens, domain) => setOverlay({ kind: 'agent', id: lens, domain })} reduced={reduced} lite={lite}/>
+          <section className="panel outputs-panel" aria-labelledby="framework-domains">
+            <h2 className="panel-heading" id="framework-domains"><Layers3 size={16}/> Life Domains</h2>
+            <div className="output-list">{modules.map(module => {
+              const Icon = moduleIcons[module.id]
+              const count = framework.graph.ideas.filter(idea => idea.domains.includes(module.id)).length
+              return <button key={module.id} className="output-button" style={accent(module.color)} onClick={() => navigate(module.id)}>
+                <span className="output-icon"><Icon size={18}/></span><span><strong>{module.name}</strong><small>{module.domain} · {count} {count === 1 ? 'idea' : 'ideas'}</small></span>
               </button>
             })}</div>
-            <button className="panel-link" onClick={() => navigate('content')}>Open library <ChevronRight size={13}/></button>
+            <button className="panel-link" onClick={() => selectAgent('core')}>Open the VISIONS Core <ChevronRight size={13}/></button>
             <Wave offset={2.7} colors={['#2edfc3', '#674dfe', '#f452d4', '#ffad5e']}/>
           </section>
 
           <aside className="status-rail" aria-label="Nexus activity and controls">
             <section className="panel focus-panel">
               <h2 className="panel-heading"><Crosshair size={16}/> Current Focus</h2>
-              <strong>{drafts.length ? 'Workflow planning' : 'Reality Design'}</strong>
-              <p>{drafts.length ? 'Review your saved intentions in Projects.' : 'Align vision, knowledge, and action with purpose.'}</p>
+              <strong>{framework.graph.ideas.length ? 'Your framework' : 'Reality Design'}</strong>
+              <p>{framework.graph.ideas.length ? 'Follow a branch to explore how your ideas connect.' : 'Start with a value, question, or practice in the Core.'}</p>
               <div className="focus-rule"/>
-              <span className="eyebrow">{drafts.length ? `${drafts.length} LOCAL ${drafts.length === 1 ? 'DRAFT' : 'DRAFTS'}` : 'EXAMPLE OBJECTIVE'}</span>
+              <span className="eyebrow">{framework.graph.ideas.length} IDEAS · {framework.graph.connections.length} CONNECTIONS</span>
             </section>
             <section className="panel activity-panel">
-              <h2 className="panel-heading"><Activity size={15}/> Agent Activity <span>NO LIVE FEED</span></h2>
+              <h2 className="panel-heading"><Activity size={15}/> Framework Lenses</h2>
               <div className="activity-list">{agents.map(agent => <button key={agent.id} style={accent(agent.color)} onClick={() => selectAgent(agent.id)}>
-                <i/>{agent.name}<small>No live feed</small>
+                <i/>{agent.name}<small>{framework.graph.ideas.filter(idea => idea.lens === agent.id).length} ideas</small>
               </button>)}</div>
             </section>
             <section className="panel modules-panel">
@@ -305,7 +310,7 @@ export function Nexus() {
               })}
             </section>
             <button className="primary-button rail-action" onClick={openPlan}><Workflow size={17}/> Plan multi-agent workflow</button>
-            <div className="rail-summary"><span>{drafts.length} {drafts.length === 1 ? 'draft task' : 'draft tasks'}</span><span>0 pending approvals</span></div>
+            <div className="rail-summary"><span>{drafts.length} {drafts.length === 1 ? 'draft task' : 'draft tasks'}</span></div>
           </aside>
         </div>
 
@@ -317,7 +322,7 @@ export function Nexus() {
           </div>)}</div>
         </div>
         <button className="command-bar" onClick={() => { setQuery(''); setOverlay({ kind: 'palette' }) }}>
-          <Sparkles size={18}/><span>Ask VISIONS or start a workflow…</span><kbd><Command size={11}/> K</kbd>
+          <Sparkles size={18}/><span>Find the Core, a lens, or a life domain…</span><kbd><Command size={11}/> K</kbd>
         </button>
         <section className="reality-section" aria-labelledby="reality-heading">
           <h2 id="reality-heading" className="eyebrow reality-label"><span/> REALITY MODULES</h2>
@@ -338,7 +343,7 @@ export function Nexus() {
             <h1>{selectedModule?.title ?? destinationName}</h1>
             {selectedModule && <p>{selectedModule.detail}</p>}
           </div>
-          <span className="preview-badge"><i/> PHASE 01 · PREVIEW</span>
+          <span className="preview-badge"><i/> VISIONS FRAMEWORK</span>
         </div>
         {destination === 'agents' && <div className="workspace-grid">
           {agents.map(agent => {
@@ -359,8 +364,12 @@ export function Nexus() {
           })}</div>
           {!domains.some(domain => matches(domainQuery, domain.name, domain.full)) && <p className="muted">No matching domains.</p>}
         </section>}
+        {destination === 'codex' && <section className="panel workspace-surface">
+          <h2>Your VISIONS framework</h2>
+          <FrameworkWorkspace store={framework}/>
+        </section>}
         {(destination === 'knowledge' || destination === 'codex') && <SourceLibrary/>}
-        {(destination === 'content' || destination === 'business') && <div className="workspace-grid">{outputs.map(output => {
+        {destination === 'content' && <div className="workspace-grid">{outputs.map(output => {
           const Icon = outputIcons[output.id]
           return <button key={output.id} className="workspace-card panel" style={accent(output.color)} onClick={() => setOverlay({ kind: 'output', id: output.id })}>
             <Icon size={22}/><strong>{output.name}</strong><span>{output.detail}</span>
@@ -386,6 +395,10 @@ export function Nexus() {
           <h2>Privacy and services</h2>
           <p className="muted">Display preferences and workflow drafts are stored in this browser. Use this preview with non-sensitive task descriptions. Supabase and OpenAI can be configured using the project README.</p>
         </section>}
+        {selectedModule && <section className="panel workspace-surface domain-framework">
+          <h2>{selectedModule.name} in your framework</h2>
+          <FrameworkWorkspace store={framework} key={selectedModule.id} domain={selectedModule.id}/>
+        </section>}
         {destination === 'lifestyle' && <>
           <div className="personal-actions" aria-label="Lifestyle workspace">
             <button className="secondary-button" aria-pressed={lifestyleSection === 'habit'} onClick={() => setLifestyleSection('habit')}>Daily habits</button>
@@ -410,6 +423,7 @@ export function Nexus() {
       <div onKeyDown={paletteKeys}>
       <label className="search-field"><Search size={18}/><input data-dialog-focus aria-label="Search workspaces, agents, and domains" value={query} placeholder="Search workspaces, agents, and domains…" onChange={event => setQuery(event.target.value)}/></label>
       <div className="palette-results">
+        {matches(query, 'VISIONS Core framework lenses') && <button onClick={() => selectAgent('core')}><Crosshair size={17}/> VISIONS Core <small>Framework</small></button>}
         {matches(query, 'Plan a workflow ask command task') && <button onClick={openPlan}><Sparkles size={17}/> Plan a workflow <small>Command</small></button>}
         {destinations.filter(([, label]) => matches(query, label)).map(([id, label]) => {
           const Icon = navIcons[id]
@@ -426,39 +440,34 @@ export function Nexus() {
           const Icon = outputIcons[output.id]
           return <button key={output.id} onClick={() => setOverlay({ kind: 'output', id: output.id })}><Icon size={17}/>{output.name}<small>Output</small></button>
         })}
-        {!matches(query, 'Plan a workflow ask command task') && !destinations.some(([, label]) => matches(query, label))
+        {!matches(query, 'VISIONS Core framework lenses') && !matches(query, 'Plan a workflow ask command task') && !destinations.some(([, label]) => matches(query, label))
           && !agents.some(agent => matches(query, agent.name, agent.archetype, agent.role))
           && !domains.some(domain => matches(query, domain.name, domain.full))
           && !outputs.some(output => matches(query, output.name, output.detail)) && <p className="muted">No matching commands or destinations.</p>}
       </div>
       </div>
     </Dialog>}
-    {overlay?.kind === 'agent' && <Dialog key="agent" title={selectedAgent?.name ?? 'VISIONS Core'} label={selectedAgent?.archetype ?? 'NETWORK COORDINATION'} onClose={() => setOverlay(null)}>
-      <p>{selectedAgent?.description ?? 'Coordinate specialized agents and give the human decision-maker oversight of the network.'}</p>
-      <div className="status-note"><CircleHelp size={16}/> Save an intention locally or run it with a configured provider.</div>
-      {selectedAgent && <section className="dialog-section"><h3>Capabilities</h3><ul>{selectedAgent.capabilities.map(capability => <li key={capability}>{capability}</li>)}</ul></section>}
-      <section className="dialog-section"><h3>Conversation & tasks</h3>{planForm(selectedAgent?.id)}
-        <p className="muted">{drafts.filter(draft => !selectedAgent || draft.agents.includes(selectedAgent.id)).length} matching local drafts</p>
-      </section>
-      <AgentRun key={overlay.id} agent={selectedAgent?.id}/>
-      <details><summary>Knowledge, outputs & collaboration</summary><p className="muted">No authorized source index, generated outputs, or collaboration events are available.</p><button className="secondary-button" onClick={() => navigate('knowledge')}>Browse domain catalog</button></details>
-      <details><summary>Configuration</summary><p className="muted">Live execution requires Supabase sign-in and an OpenAI configuration. Display options are available under Settings.</p><button className="secondary-button" onClick={() => navigate('settings')}>Open settings</button></details>
+    {overlay?.kind === 'agent' && <Dialog key={'framework-' + overlay.id + ':' + (overlay.domain ?? '')}
+      title={selectedAgent?.name ?? 'VISIONS Core'} label={selectedAgent?.archetype ?? 'THE FULL VISIONS FRAMEWORK'} onClose={() => setOverlay(null)}>
+      <p>{selectedAgent?.description ?? 'Bring Lifestyle, Business, and Relationships into one framework. Each VISIONS lens helps you notice a different aspect of the same life.'}</p>
+      <FrameworkWorkspace store={framework} lens={selectedAgent?.id} domain={overlay.domain}/>
+      {!selectedAgent && <details><summary>Reflect with the VISIONS Core</summary><AgentRun/></details>}
+      {selectedAgent && <button className="secondary-button" type="button" onClick={() => selectAgent('core')}>Open the full framework</button>}
     </Dialog>}
     {overlay?.kind === 'domain' && <Dialog title={domains[overlay.index].full} label="KNOWLEDGE DOMAIN" onClose={() => setOverlay(null)}>
       <p className="muted">Open Knowledge to manage passages, provenance, and permissions.</p>
       <button className="secondary-button" onClick={() => navigate('knowledge')}>View all domains</button>
     </Dialog>}
     {overlay?.kind === 'output' && <Dialog title={outputs.find(output => output.id === overlay.id)?.name ?? 'Content'} label="CONTENT OUTPUT" onClose={() => setOverlay(null)}>
-      <p className="muted">{overlay.id === 'music' ? 'Create a text soundtrack brief. Audio rendering requires a compatible provider.' : overlay.id === 'visuals' ? 'Create a text visual brief. Image rendering requires a compatible provider.' : 'Create a text draft and review it with Negation before exporting.'}</p>
-      <button className="secondary-button" onClick={openPlan}><Plus size={16}/> Save a local workflow intention</button>
-      <AgentRun key={overlay.id} format={overlay.id}/>
+      <p className="muted">Production for this format is planned for a later phase. Capture the idea in your VISIONS framework.</p>
+      <button className="secondary-button" type="button" onClick={() => selectAgent('core')}>Open the full framework</button>
     </Dialog>}
     {overlay?.kind === 'stage' && <Dialog title={stages[overlay.index].name} label="DIGITAL LITURGY" onClose={() => setOverlay(null)}>
       <p>{stages[overlay.index].description}</p>
       <button className="secondary-button" onClick={openPlan}>Plan a workflow</button>
     </Dialog>}
     {overlay?.kind === 'plan' && <Dialog key="plan" title="Plan a workflow" label="VISIONS CORE" onClose={() => setOverlay(null)}>
-      <p className="muted">Save an intention to Projects. Suggested agents are selected by local rules. Open the VISIONS Core to run a supported workflow.</p>
+      <p className="muted">Save an intention to Projects. Use the seven lenses to consider how the intention connects across life domains.</p>
       {planForm()}
     </Dialog>}
     {overlay?.kind === 'notifications' && <Dialog title="Notifications" onClose={() => setOverlay(null)}><p className="muted">No notifications or pending approvals.</p></Dialog>}

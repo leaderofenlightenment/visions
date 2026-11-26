@@ -67,3 +67,22 @@ run without querying personal workspaces. This foundation shows completed
 outputs in the current dialog. Persistent run history, retrieval, approvals,
 and live network event streaming are future work. The rate-limit table
 should have a retention job before production.
+
+## Source library and text studios
+
+Apply `supabase/migrations/202611260003_source_library.sql` after the first
+two migrations. Sign in and open **Knowledge** to save short licensed
+passages with source type, attribution, citation locator, provenance, and
+rights. Sources are private and searchable by title. To correct a passage,
+create a replacement and remove the obsolete record.
+
+You can select up to three passages for a run. The consent checkbox covers
+the intention and selected source records sent to OpenAI. Each submitted
+passage gets an identifier such as `[S1]`, and the workspace shows the exact
+references for review. Enter only text you have permission to send to the
+provider. Model citations still require editorial verification.
+
+In **Business** or **Content Library**, choose a format and submit a brief.
+Story drafts and Negation reviews. Download both as Markdown with the source
+references. Music and visuals are text briefs. Media providers, saved content
+projects, approval queues, publication and deployment remain separate work.

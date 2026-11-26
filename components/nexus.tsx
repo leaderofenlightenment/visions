@@ -11,6 +11,7 @@ import { Dialog } from './dialog'
 import { agentIcons, domainIcons, moduleIcons, navIcons, outputIcons } from './icons'
 import { NeuralNetwork } from './neural-network'
 import { Wave } from './wave'
+import { SourceLibrary } from './source-library'
 import { AgentRun } from './agent-run'
 import { PersonalWorkspace } from './personal-workspace'
 
@@ -358,7 +359,8 @@ export function Nexus() {
           })}</div>
           {!domains.some(domain => matches(domainQuery, domain.name, domain.full)) && <p className="muted">No matching domains.</p>}
         </section>}
-        {destination === 'content' && <div className="workspace-grid">{outputs.map(output => {
+        {(destination === 'knowledge' || destination === 'codex') && <SourceLibrary/>}
+        {(destination === 'content' || destination === 'business') && <div className="workspace-grid">{outputs.map(output => {
           const Icon = outputIcons[output.id]
           return <button key={output.id} className="workspace-card panel" style={accent(output.color)} onClick={() => setOverlay({ kind: 'output', id: output.id })}>
             <Icon size={22}/><strong>{output.name}</strong><span>{output.detail}</span>
@@ -393,12 +395,10 @@ export function Nexus() {
         </>}
         {destination === 'relationships' && <PersonalWorkspace key="relationships" kind="relationship"/>}
         {destination === 'projects' && <PersonalWorkspace key="projects" kind="project"/>}
-        {(destination === 'business' || destination === 'codex' || destination === 'analytics') && <section className="panel workspace-surface empty-workspace">
+        {destination === 'analytics' && <section className="panel workspace-surface empty-workspace">
           <FolderOpen size={28}/>
-          <h2>{destination === 'analytics' ? 'No execution data' : 'Workspace preview'}</h2>
-          <p className="muted">{destination === 'business' ? 'Article, audio, and visual production arrive with the Creation Engine.'
-            : destination === 'codex' ? 'Personal memory and authenticated storage are planned for a later phase.'
-            : 'Usage and performance reporting will appear when workflow execution is configured.'}</p>
+          <h2>No execution history</h2>
+          <p className="muted">Persistent usage and performance reporting are planned for a later release.</p>
           <button className="secondary-button" onClick={openPlan}>Draft a workflow</button>
         </section>}
       </>}
@@ -445,19 +445,20 @@ export function Nexus() {
       <details><summary>Configuration</summary><p className="muted">Live execution requires Supabase sign-in and an OpenAI configuration. Display options are available under Settings.</p><button className="secondary-button" onClick={() => navigate('settings')}>Open settings</button></details>
     </Dialog>}
     {overlay?.kind === 'domain' && <Dialog title={domains[overlay.index].full} label="KNOWLEDGE DOMAIN" onClose={() => setOverlay(null)}>
-      <p className="muted">This domain is ready to browse. Source ingestion, citations, and graph editing will be available with the knowledge engine.</p>
+      <p className="muted">Open Knowledge to manage passages, provenance, and permissions.</p>
       <button className="secondary-button" onClick={() => navigate('knowledge')}>View all domains</button>
     </Dialog>}
     {overlay?.kind === 'output' && <Dialog title={outputs.find(output => output.id === overlay.id)?.name ?? 'Content'} label="CONTENT OUTPUT" onClose={() => setOverlay(null)}>
-      <p className="muted">{overlay.id === 'music' ? 'Audio generation requires a compatible music provider. You can save an intention for a soundtrack as a workflow draft.' : 'This output type is part of the Creation Engine. You can save a workflow draft for it now.'}</p>
-      <button className="primary-button" onClick={openPlan}><Plus size={16}/> Draft a workflow</button>
+      <p className="muted">{overlay.id === 'music' ? 'Create a text soundtrack brief. Audio rendering requires a compatible provider.' : overlay.id === 'visuals' ? 'Create a text visual brief. Image rendering requires a compatible provider.' : 'Create a text draft and review it with Negation before exporting.'}</p>
+      <button className="secondary-button" onClick={openPlan}><Plus size={16}/> Save a local workflow intention</button>
+      <AgentRun key={overlay.id} format={overlay.id}/>
     </Dialog>}
     {overlay?.kind === 'stage' && <Dialog title={stages[overlay.index].name} label="DIGITAL LITURGY" onClose={() => setOverlay(null)}>
       <p>{stages[overlay.index].description}</p>
       <button className="secondary-button" onClick={openPlan}>Plan a workflow</button>
     </Dialog>}
     {overlay?.kind === 'plan' && <Dialog key="plan" title="Plan a workflow" label="VISIONS CORE" onClose={() => setOverlay(null)}>
-      <p className="muted">Save an intention to Projects. Suggested agents are selected by local rules. Live execution is unavailable in this preview.</p>
+      <p className="muted">Save an intention to Projects. Suggested agents are selected by local rules. Open the VISIONS Core to run a supported workflow.</p>
       {planForm()}
     </Dialog>}
     {overlay?.kind === 'notifications' && <Dialog title="Notifications" onClose={() => setOverlay(null)}><p className="muted">No notifications or pending approvals.</p></Dialog>}

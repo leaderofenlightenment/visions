@@ -27,3 +27,15 @@
 - [x] Authenticated agent and Core execution with consent, request deadline, and a database-backed rate limit
 - [ ] Verify sign-in and live provider calls against configured services
 - [ ] Persist resumable workflows and conversations, source retrieval, usage, approvals, and event-driven network highlights
+
+### Phase 04 status
+
+- [x] Owner-scoped licensed passage library, title search, and provenance review
+- [x] Consent-based retrieval by selected passage ID with visible citation references
+- [ ] Curated verified corpus, editorial version history, document ingestion, semantic retrieval, and knowledge graph editing
+
+### Phase 05 status
+
+- [x] Text studios for articles, posts, threads, visual briefs, and soundtrack briefs
+- [x] Story drafting, Negation review, and Markdown export with source references
+- [ ] Durable content projects and derivative tracking, media generation, approval queues, and publication workflow

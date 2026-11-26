@@ -12,7 +12,10 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "node --import tsx --test --test-isolation=none tests/*.test.ts tests/*.test.tsx",
-    "verify": "npm run lint && npm run typecheck && npm test && npm run build"
+    "verify": "npm run lint && npm run typecheck && npm test && npm run build",
+    "course:stage": "node --env-file-if-exists=.env.course-owner --import tsx scripts/import-course.ts --stage",
+    "course:prepare": "node --import tsx scripts/import-course.ts --prepare",
+    "course:publish": "node --env-file-if-exists=.env.course-owner --import tsx scripts/import-course.ts --publish"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.2.0",
@@ -24,7 +27,9 @@
     "lucide-react": "^1.0.0",
     "next": "16.4.6",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.6.0",

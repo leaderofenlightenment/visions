@@ -15,7 +15,8 @@ import { SourceLibrary } from './source-library'
 import { AgentRun } from './agent-run'
 import { PersonalWorkspace } from './personal-workspace'
 import { CourseLibrary } from './course-library'
-import type { CourseMaterial } from '@/lib/course'
+import { CourseReader } from './course-reader'
+import { courseMaterial, type CourseMaterial } from '@/lib/course'
 import { FrameworkWorkspace } from './framework-workspace'
 import { useFramework } from './use-framework'
 
@@ -23,7 +24,7 @@ type Overlay =
   | { kind: 'palette' | 'notifications' | 'profile' | 'plan' }
   | { kind: 'agent'; id: AgentId | 'core'; domain?: ModuleId }
   | { kind: 'domain' | 'stage'; index: number }
-  | { kind: 'course'; material: CourseMaterial }
+  | { kind: 'course' | 'reading'; material: CourseMaterial }
   | { kind: 'output'; id: (typeof outputs)[number]['id'] }
 
 type LocalPreferences = { reduced?: boolean; lite?: boolean; modules?: Partial<Record<ModuleId, boolean>> }
@@ -205,6 +206,11 @@ export function Nexus() {
     else setPlanError('Browser storage is unavailable. Your draft could not be saved.')
   }
 
+  function readCourse(id: string) {
+    const material = courseMaterial(id)
+    if (material) setOverlay({ kind: 'reading', material })
+  }
+
   function selectAgent(id: AgentId | 'core') {
     setIntention('')
     setPlanError('')
@@ -352,9 +358,9 @@ export function Nexus() {
           </div>
           <span className="preview-badge"><i/> VISIONS FRAMEWORK</span>
         </div>
-        {destination === 'course' && <CourseLibrary graph={framework.graph} onApply={material => setOverlay({ kind: 'course', material })}/>}
-        {destination === 'content' && <CourseLibrary graph={framework.graph} toolkit onApply={material => setOverlay({ kind: 'course', material })}/>}
-        {selectedModule && <CourseLibrary key={selectedModule.id} graph={framework.graph} domain={selectedModule.id}
+        {destination === 'course' && <CourseLibrary graph={framework.graph} onRead={material => readCourse(material.id)} onApply={material => setOverlay({ kind: 'course', material })}/>}
+        {destination === 'content' && <CourseLibrary graph={framework.graph} toolkit onRead={material => readCourse(material.id)} onApply={material => setOverlay({ kind: 'course', material })}/>}
+        {selectedModule && <CourseLibrary key={selectedModule.id} graph={framework.graph} domain={selectedModule.id} onRead={material => readCourse(material.id)}
           onApply={material => setOverlay({ kind: 'course', material })}/>}
         {destination === 'agents' && <div className="workspace-grid">
           {agents.map(agent => {
@@ -377,7 +383,7 @@ export function Nexus() {
         </section>}
         {destination === 'codex' && <section className="panel workspace-surface">
           <h2>Your VISIONS framework</h2>
-          <FrameworkWorkspace store={framework}/>
+          <FrameworkWorkspace store={framework} onReadCourse={readCourse}/>
         </section>}
         {(destination === 'knowledge' || destination === 'codex') && <SourceLibrary/>}
         {destination === 'content' && <div className="workspace-grid">{outputs.map(output => {
@@ -408,7 +414,7 @@ export function Nexus() {
         </section>}
         {selectedModule && <section className="panel workspace-surface domain-framework">
           <h2>{selectedModule.name} in your framework</h2>
-          <FrameworkWorkspace store={framework} key={selectedModule.id} domain={selectedModule.id}/>
+          <FrameworkWorkspace store={framework} onReadCourse={readCourse} key={selectedModule.id} domain={selectedModule.id}/>
         </section>}
         {destination === 'lifestyle' && <>
           <div className="personal-actions" aria-label="Lifestyle workspace">
@@ -458,14 +464,18 @@ export function Nexus() {
       </div>
       </div>
     </Dialog>}
+    {overlay?.kind === 'reading' && <Dialog key={'read:' + overlay.material.id} title={overlay.material.title} label="THE MASTER CREATOR" onClose={() => setOverlay(null)}>
+      <CourseReader key={overlay.material.id} id={overlay.material.id} onOpen={readCourse}
+        onApply={() => setOverlay({ kind: 'course', material: overlay.material })}/>
+    </Dialog>}
     {overlay?.kind === 'course' && <Dialog title={overlay.material.title} label="THE MASTER CREATOR" onClose={() => setOverlay(null)}>
       <p>Apply this material by saving an idea, practice, or next step and linking it to ideas already in your framework.</p>
-      <FrameworkWorkspace key={overlay.material.id} store={framework} course={overlay.material}/>
+      <FrameworkWorkspace key={overlay.material.id} store={framework} onReadCourse={readCourse} course={overlay.material}/>
     </Dialog>}
     {overlay?.kind === 'agent' && <Dialog key={'framework-' + overlay.id + ':' + (overlay.domain ?? '')}
       title={selectedAgent?.name ?? 'VISIONS Core'} label={selectedAgent?.archetype ?? 'THE FULL VISIONS FRAMEWORK'} onClose={() => setOverlay(null)}>
       <p>{selectedAgent?.description ?? 'Bring Lifestyle, Business, and Relationships into one framework. Each VISIONS lens helps you notice a different aspect of the same life.'}</p>
-      <FrameworkWorkspace store={framework} lens={selectedAgent?.id} domain={overlay.domain}/>
+      <FrameworkWorkspace store={framework} onReadCourse={readCourse} lens={selectedAgent?.id} domain={overlay.domain}/>
       {!selectedAgent && <details><summary>Reflect with the VISIONS Core</summary><AgentRun/></details>}
       {selectedAgent && <button className="secondary-button" type="button" onClick={() => selectAgent('core')}>Open the full framework</button>}
     </Dialog>}

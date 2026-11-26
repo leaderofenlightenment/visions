@@ -134,8 +134,28 @@ test('applies a course system to its domain and grows a saved branch', async () 
   fireEvent.change(title, { target: { value: 'Make space for family rest' } })
   fireEvent.click(dialog.getByRole('button', { name: 'Save idea' }))
   await dialog.findByRole('heading', { name: 'Make space for family rest' })
-  assert.ok(dialog.getByRole('link', { name: 'Sacramental Lifestyle Worksheet' }))
+  assert.ok(dialog.getByRole('button', { name: 'Sacramental Lifestyle Worksheet' }))
   fireEvent.click(dialog.getByRole('button', { name: 'Close dialog' }))
   fireEvent.click(screen.getByRole('link', { name: 'Dashboard' }))
   assert.ok(screen.getByRole('button', { name: 'Lifestyle branch, system, 1 idea' }))
+})
+
+
+test('reads lesson content inside VISIONS and follows an internal course reference', async () => {
+  const fetchMock = globalThis.fetch as unknown as { mock: { mockImplementation(impl: (path: string) => Promise<Response>): void } }
+  fetchMock.mock.mockImplementation(async path => Response.json(
+    path === '/api/framework' ? { mode: 'device' }
+      : path.endsWith('189776d8f6278108ac1cfffcbc4605e8') ? { markdown: '## A private exercise\n\n[Open related material](#course-material=181776d8f62780d39355eaf88309c3a4)' }
+      : { markdown: '## Related private exercise' },
+  ))
+  render(<Nexus />)
+  fireEvent.click(screen.getByRole('button', { name: 'Explore course' }))
+  fireEvent.change(screen.getByRole('textbox', { name: 'Find course material' }), { target: { value: 'Sacramental Lifestyle Worksheet' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Read in VISIONS' }))
+  const reader = within(screen.getByRole('dialog', { name: 'Sacramental Lifestyle Worksheet' }))
+  await reader.findByRole('heading', { name: 'A private exercise' })
+  fireEvent.click(reader.getByRole('button', { name: 'Open related material' }))
+  const related = within(screen.getByRole('dialog', { name: 'Vision Sculpting' }))
+  await related.findByRole('heading', { name: 'Related private exercise' })
+  assert.equal(screen.queryByRole('link', { name: /notion/i }), null)
 })

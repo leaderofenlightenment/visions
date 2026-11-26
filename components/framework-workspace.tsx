@@ -4,14 +4,14 @@ import { useState, type CSSProperties, type FormEvent } from 'react'
 import { Crosshair, Link2, Plus } from 'lucide-react'
 import { agents, modules, type AgentId, type ModuleId } from '@/lib/codex'
 import { frameworkSummary, ideaLimit, lensQuestions, removeIdea, type Framework, type Idea } from '@/lib/framework'
-import { courseMaterial, courseUrl, type CourseMaterial } from '@/lib/course'
+import { courseMaterial, type CourseMaterial } from '@/lib/course'
 import { LensNetwork } from './lens-network'
 import type { FrameworkStore } from './use-framework'
 
-type Props = { store: FrameworkStore; lens?: AgentId; domain?: ModuleId; course?: CourseMaterial }
+type Props = { store: FrameworkStore; lens?: AgentId; domain?: ModuleId; course?: CourseMaterial; onReadCourse: (id: string) => void }
 type Draft = { lens: AgentId; domains: ModuleId[]; idea?: Idea; course?: CourseMaterial }
 
-export function FrameworkWorkspace({ store, lens, domain, course }: Props) {
+export function FrameworkWorkspace({ store, lens, domain, course, onReadCourse }: Props) {
   const { graph } = store
   const [filterLens, setFilterLens] = useState<AgentId | ''>(lens ?? '')
   const [filterDomain, setFilterDomain] = useState<ModuleId | ''>(domain ?? '')
@@ -82,7 +82,7 @@ export function FrameworkWorkspace({ store, lens, domain, course }: Props) {
       <small>{store.mode === 'device' ? 'Stored on this browser' : 'Private Supabase workspace'}</small>
     </div>
     {store.mode === 'device' && <p className="muted">Use non-sensitive ideas in this browser workspace. Account data is stored separately when Supabase is configured.</p>}
-    {course && <p><a className="secondary-button" href={courseUrl(course.id)} target="_blank" rel="noreferrer">Read this material in Notion</a></p>}
+    {course && <p><button className="secondary-button" onClick={() => onReadCourse(course.id)}>Read this material</button></p>}
     {!lens && !domain && !course && <>
       <p>Start with a value, question, or practice. Apply any of the seven VISIONS lenses to one or more life domains, then connect related ideas.</p>
       <div className="framework-matrix-wrap">
@@ -142,7 +142,7 @@ export function FrameworkWorkspace({ store, lens, domain, course }: Props) {
     {current && <article className="personal-record framework-detail">
       <h3>{current.title}</h3>
       <small>{agents.find(agent => agent.id === current.lens)?.name} · {current.domains.map(id => modules.find(module => module.id === id)?.name).join(', ')}</small>
-      {current.courseId && <p><a className="secondary-button" href={courseUrl(current.courseId)} target="_blank" rel="noreferrer">{courseMaterial(current.courseId)?.title ?? 'Course source'}</a></p>}
+      {current.courseId && courseMaterial(current.courseId) && <p><button className="secondary-button" onClick={() => onReadCourse(current.courseId!)}>{courseMaterial(current.courseId)?.title}</button></p>}
       {current.detail && <p>{current.detail}</p>}
       {linked(current.id).length > 0 && <div className="framework-linked">
         <h4>Connected ideas</h4>

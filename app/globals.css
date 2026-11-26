@@ -493,3 +493,12 @@ kbd { display: inline-flex; align-items: center; gap: 3px; font: .68rem var(--mo
 .course-material h4 { margin: 0 0 4px; }
 .course-material details { margin-top: 8px; }
 .course-material details > .course-material { margin-left: 8px; }
+
+.course-reading { overflow-wrap: anywhere; line-height: 1.65; margin-block: 12px 20px; }
+.course-reading a, .course-inline-link { color: #c4adff; text-decoration: underline; }
+.course-inline-link { cursor: pointer; border: 0; padding: 0; background: transparent; font: inherit; text-align: left; }
+.course-reading img, .course-reading video, .course-reading audio { max-width: 100%; margin-block: 8px; }
+.course-reading blockquote { margin-inline: 0; padding-inline: 12px; border-left: 2px solid #9d72eb; color: #d1c4e7; }
+.course-reading pre { overflow: auto; background: #141022; padding: 8px; border-radius: 6px; }
+.course-reading table { display: block; overflow-x: auto; border-collapse: collapse; }
+.course-reading th, .course-reading td { border: 1px solid #514064; padding: 4px 7px; }

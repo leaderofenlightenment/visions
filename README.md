@@ -79,6 +79,7 @@ applications appear as suggested connections you can accept or remove.
 
 Lifestyle, Business, and Relationships show course materials relevant to
 their domains. Content Library includes the Digital Marketing Toolkit.
-Original lessons, media, and Notion database views are opened in Notion and
-follow the learner's existing permissions. The catalog is a snapshot of
-linked materials. Updates in Notion require a catalog update in VISIONS.
+Learners open **Read in VISIONS** and sign in with an enrolled account. They
+can read imported course pages, open their attachments, and follow links to
+other imported materials inside the app. See the [owner import guide](docs/course-import.md)
+to publish the private course in Supabase and enroll learners.

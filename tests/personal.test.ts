@@ -30,11 +30,16 @@ test('PostgreSQL migration isolates records and rejects cross-owner completions'
       insert into auth.users values ('${first}'), ('${second}');
     `)
     await db.exec(await readFile(new URL('../supabase/migrations/202611260001_personal_os.sql', import.meta.url), 'utf8'))
+    await db.exec(await readFile(new URL('../supabase/migrations/202611260002_agent_limits.sql', import.meta.url), 'utf8'))
     await db.exec(`set role authenticated; set request.jwt.claim.sub = '${first}';`)
+    await db.exec('begin; insert into agent_run_claims default values; savepoint duplicate_claim')
+    await assert.rejects(db.exec('insert into agent_run_claims default values'), /duplicate key/i)
+    await db.exec('rollback to duplicate_claim; commit')
     const habit = await db.query<{ id: string }>("insert into personal_records (kind, title) values ('habit', 'Reading') returning id")
     const habitId = habit.rows[0].id
     await db.query("insert into habit_completions (habit_id, day) values ($1, '2026-11-26')", [habitId])
     await db.exec(`set request.jwt.claim.sub = '${second}';`)
+    await assert.rejects(db.query('insert into agent_run_claims (owner_id) values ($1)', [first]), /row-level security/i)
     assert.deepEqual((await db.query('select id from personal_records')).rows, [])
     assert.deepEqual((await db.query('delete from personal_records returning id')).rows, [])
     assert.deepEqual((await db.query('select habit_id from habit_completions')).rows, [])

@@ -49,3 +49,21 @@ The Phase 02 foundation includes private records, daily habit completions,
 calendar windows, an editable journal, grouped relationship profiles, and
 projects. Workflow drafts from Phase 01 stay in the browser. Use test records
 until you verify sign-in and account isolation against your Supabase project.
+
+## Phase 03 live agent setup
+
+After setting up Supabase, apply
+`supabase/migrations/202611260002_agent_limits.sql`. Add a server-side
+`OPENAI_API_KEY` and a Responses API-compatible `OPENAI_MODEL` to
+`.env.local`, then restart the server. Sign in from a personal workspace,
+open an agent or the VISIONS Core, enter a non-sensitive intention, and
+check the permission box before running.
+
+Single-agent runs use the selected role. The Core may use up to three roles
+in sequence, including a final discernment step when routed. The API permits
+one run per user per calendar minute and imposes a 45-second provider
+deadline. It sends the submitted intention and previous steps from that
+run without querying personal workspaces. This foundation shows completed
+outputs in the current dialog. Persistent run history, retrieval, approvals,
+and live network event streaming are future work. The rate-limit table
+should have a retention job before production.

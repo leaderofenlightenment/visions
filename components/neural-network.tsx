@@ -136,7 +136,7 @@ export function NeuralNetwork({ onSelect, reduced, lite }: {
         </svg>}
         <button className="orb core-orb" style={{ '--x': core.x + '%', '--y': core.y + '%', '--accent': core.color } as CSSProperties}
           onClick={() => onSelect('core')} onMouseEnter={() => setHovered('core')} onMouseLeave={() => setHovered(null)}
-          onFocus={() => setHovered('core')} onBlur={() => setHovered(null)} title="VISIONS Core · Coordination · Unconfigured">
+          onFocus={() => setHovered('core')} onBlur={() => setHovered(null)} title="VISIONS Core · Coordination">
           <BrandMark size={49}/><strong>VISIONS</strong><small>CORE</small>
         </button>
         {agents.map(agent => {
@@ -145,14 +145,14 @@ export function NeuralNetwork({ onSelect, reduced, lite }: {
             style={{ '--x': agent.x + '%', '--y': agent.y + '%', '--accent': agent.color } as CSSProperties}
             onClick={() => onSelect(agent.id)} onMouseEnter={() => setHovered(agent.id)} onMouseLeave={() => setHovered(null)}
             onFocus={() => setHovered(agent.id)} onBlur={() => setHovered(null)}
-            title={`${agent.name} · ${agent.role} · Unconfigured`}>
+            title={`${agent.name} · ${agent.role}`}>
             <Icon size={19}/><strong>{agent.name}</strong><small>{agent.role}</small>
           </button>
         })}
       </div>
       {hovered && <div className="network-tooltip" role="status">
         {hovered === 'core' ? 'VISIONS Core · Network coordination' : agents.find(agent => agent.id === hovered)?.description}
-        <span>Provider unconfigured</span>
+        <span>Open workspace to check execution access</span>
       </div>}
     </div>
     <div className="network-footer">

@@ -20,3 +20,10 @@
 - [x] Filterable relationship clusters with condition indicators and zoom
 - [ ] Add flexible schedules, reminders, routine templates, richer relationship history, and graph navigation
 - [ ] Complete data export, account deletion, and production-sensitive storage review
+
+### Phase 03 status
+
+- [x] Configurable server-side Responses API adapter and seven role instructions
+- [x] Authenticated agent and Core execution with consent, request deadline, and a database-backed rate limit
+- [ ] Verify sign-in and live provider calls against configured services
+- [ ] Persist resumable workflows and conversations, source retrieval, usage, approvals, and event-driven network highlights

@@ -11,6 +11,7 @@ import { Dialog } from './dialog'
 import { agentIcons, domainIcons, moduleIcons, navIcons, outputIcons } from './icons'
 import { NeuralNetwork } from './neural-network'
 import { Wave } from './wave'
+import { AgentRun } from './agent-run'
 import { PersonalWorkspace } from './personal-workspace'
 
 type Overlay =
@@ -287,9 +288,9 @@ export function Nexus() {
               <span className="eyebrow">{drafts.length ? `${drafts.length} LOCAL ${drafts.length === 1 ? 'DRAFT' : 'DRAFTS'}` : 'EXAMPLE OBJECTIVE'}</span>
             </section>
             <section className="panel activity-panel">
-              <h2 className="panel-heading"><Activity size={15}/> Agent Activity <span>OFFLINE</span></h2>
+              <h2 className="panel-heading"><Activity size={15}/> Agent Activity <span>NO LIVE FEED</span></h2>
               <div className="activity-list">{agents.map(agent => <button key={agent.id} style={accent(agent.color)} onClick={() => selectAgent(agent.id)}>
-                <i/>{agent.name}<small>Unconfigured</small>
+                <i/>{agent.name}<small>No live feed</small>
               </button>)}</div>
             </section>
             <section className="panel modules-panel">
@@ -381,7 +382,7 @@ export function Nexus() {
           <label className="settings-option"><span><strong>Reduce motion</strong><small>{reduceByDefault ? 'Your operating system requests reduced motion.' : 'Pause ambient movement and transitions.'}</small></span><input type="checkbox" checked={reduced} disabled={reduceByDefault} onChange={event => changePreferences({ reduced: event.target.checked })}/></label>
           <label className="settings-option"><span><strong>Lightweight network</strong><small>Use a static scene with fewer particles. On by default on small screens.</small></span><input type="checkbox" checked={lite} onChange={event => changePreferences({ lite: event.target.checked })}/></label>
           <h2>Privacy and services</h2>
-          <p className="muted">Display preferences and workflow drafts are stored in this browser. Use this preview with non-sensitive task descriptions. Authentication and provider services are unconfigured.</p>
+          <p className="muted">Display preferences and workflow drafts are stored in this browser. Use this preview with non-sensitive task descriptions. Supabase and OpenAI can be configured using the project README.</p>
         </section>}
         {destination === 'lifestyle' && <>
           <div className="personal-actions" aria-label="Lifestyle workspace">
@@ -434,13 +435,14 @@ export function Nexus() {
     </Dialog>}
     {overlay?.kind === 'agent' && <Dialog key="agent" title={selectedAgent?.name ?? 'VISIONS Core'} label={selectedAgent?.archetype ?? 'NETWORK COORDINATION'} onClose={() => setOverlay(null)}>
       <p>{selectedAgent?.description ?? 'Coordinate specialized agents and give the human decision-maker oversight of the network.'}</p>
-      <div className="status-note"><CircleHelp size={16}/> AI provider unconfigured. You can save a local task draft below.</div>
+      <div className="status-note"><CircleHelp size={16}/> Save an intention locally or run it with a configured provider.</div>
       {selectedAgent && <section className="dialog-section"><h3>Capabilities</h3><ul>{selectedAgent.capabilities.map(capability => <li key={capability}>{capability}</li>)}</ul></section>}
       <section className="dialog-section"><h3>Conversation & tasks</h3>{planForm(selectedAgent?.id)}
         <p className="muted">{drafts.filter(draft => !selectedAgent || draft.agents.includes(selectedAgent.id)).length} matching local drafts</p>
       </section>
+      <AgentRun key={overlay.id} agent={selectedAgent?.id}/>
       <details><summary>Knowledge, outputs & collaboration</summary><p className="muted">No authorized source index, generated outputs, or collaboration events are available.</p><button className="secondary-button" onClick={() => navigate('knowledge')}>Browse domain catalog</button></details>
-      <details><summary>Configuration</summary><p className="muted">Live execution requires a server-side provider. Display options are available under Settings.</p><button className="secondary-button" onClick={() => navigate('settings')}>Open settings</button></details>
+      <details><summary>Configuration</summary><p className="muted">Live execution requires Supabase sign-in and an OpenAI configuration. Display options are available under Settings.</p><button className="secondary-button" onClick={() => navigate('settings')}>Open settings</button></details>
     </Dialog>}
     {overlay?.kind === 'domain' && <Dialog title={domains[overlay.index].full} label="KNOWLEDGE DOMAIN" onClose={() => setOverlay(null)}>
       <p className="muted">This domain is ready to browse. Source ingestion, citations, and graph editing will be available with the knowledge engine.</p>

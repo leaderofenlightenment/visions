@@ -45,7 +45,7 @@ test('opens the keyboard palette, finds an agent, then returns focus to the laun
   assert.equal(document.activeElement, result)
   fireEvent.click(result)
   assert.ok(screen.getByRole('dialog', { name: 'Negation' }))
-  assert.ok(screen.getByText(/AI provider unconfigured/))
+  assert.ok(screen.getByRole('heading', { name: 'Live execution' }))
   fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }))
   assert.equal(document.activeElement, opener)
 })

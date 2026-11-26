@@ -67,3 +67,18 @@ deferred. See the [development roadmap](docs/roadmap.md) for remaining work.
 - [Architecture](docs/architecture.md)
 - [Design system](docs/design.md)
 - [Database and security model](docs/data-model.md)
+
+## The Master Creator
+
+Open **Course** in the Nexus to find The Master Creator lessons, systems,
+bonuses, and linked resources. Use **Apply in VISIONS** to save an idea or
+practice with a default lens and life-domain assignment. Both can be changed.
+The application retains the Notion source ID in the existing framework graph
+and follows the same Supabase or browser storage settings. Related saved
+applications appear as suggested connections you can accept or remove.
+
+Lifestyle, Business, and Relationships show course materials relevant to
+their domains. Content Library includes the Digital Marketing Toolkit.
+Original lessons, media, and Notion database views are opened in Notion and
+follow the learner's existing permissions. The catalog is a snapshot of
+linked materials. Updates in Notion require a catalog update in VISIONS.

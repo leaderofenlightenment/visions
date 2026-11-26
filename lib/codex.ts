@@ -48,7 +48,7 @@ export const stages = [
 
 export const destinations = [
   ['dashboard', 'Dashboard'], ['agents', 'Agents'], ['lifestyle', 'Lifestyle'], ['business', 'Business'],
-  ['relationships', 'Relationships'], ['codex', 'Reality Codex'], ['projects', 'Projects'],
+  ['relationships', 'Relationships'], ['codex', 'Reality Codex'], ['course', 'Course'], ['projects', 'Projects'],
   ['knowledge', 'Knowledge'], ['content', 'Content Library'], ['analytics', 'Analytics'], ['settings', 'Settings'],
 ] as const
 

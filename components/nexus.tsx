@@ -14,6 +14,8 @@ import { Wave } from './wave'
 import { SourceLibrary } from './source-library'
 import { AgentRun } from './agent-run'
 import { PersonalWorkspace } from './personal-workspace'
+import { CourseLibrary } from './course-library'
+import type { CourseMaterial } from '@/lib/course'
 import { FrameworkWorkspace } from './framework-workspace'
 import { useFramework } from './use-framework'
 
@@ -21,6 +23,7 @@ type Overlay =
   | { kind: 'palette' | 'notifications' | 'profile' | 'plan' }
   | { kind: 'agent'; id: AgentId | 'core'; domain?: ModuleId }
   | { kind: 'domain' | 'stage'; index: number }
+  | { kind: 'course'; material: CourseMaterial }
   | { kind: 'output'; id: (typeof outputs)[number]['id'] }
 
 type LocalPreferences = { reduced?: boolean; lite?: boolean; modules?: Partial<Record<ModuleId, boolean>> }
@@ -241,7 +244,7 @@ export function Nexus() {
           const Icon = navIcons[id]
           return <div key={id}>
             {index === 5 && <span className="nav-group nav-group-secondary">CODEX</span>}
-            {index === 10 && <div className="nav-divider"/>}
+            {id === 'settings' && <div className="nav-divider"/>}
             <a href={`#${id}`} className={destination === id ? 'nav-link active' : 'nav-link'} aria-current={destination === id ? 'page' : undefined}
               onClick={event => { event.preventDefault(); navigate(id) }}><Icon size={17}/>{label}</a>
           </div>
@@ -261,6 +264,10 @@ export function Nexus() {
           </div>
           <span className="preview-badge"><i/> VISIONS FRAMEWORK</span>
         </div>
+        <section className="panel course-banner" aria-label="The Master Creator course">
+          <div><strong>The Master Creator</strong><span>Apply the course across Lifestyle, Business, and Relationships.</span></div>
+          <button className="primary-button" onClick={() => navigate('course')}>Explore course</button>
+        </section>
         <div className="dashboard-grid">
           <section className="panel knowledge-panel" aria-labelledby="domains-heading">
             <h2 className="panel-heading" id="domains-heading"><Network size={16}/> Knowledge Domains</h2>
@@ -345,6 +352,10 @@ export function Nexus() {
           </div>
           <span className="preview-badge"><i/> VISIONS FRAMEWORK</span>
         </div>
+        {destination === 'course' && <CourseLibrary graph={framework.graph} onApply={material => setOverlay({ kind: 'course', material })}/>}
+        {destination === 'content' && <CourseLibrary graph={framework.graph} toolkit onApply={material => setOverlay({ kind: 'course', material })}/>}
+        {selectedModule && <CourseLibrary key={selectedModule.id} graph={framework.graph} domain={selectedModule.id}
+          onApply={material => setOverlay({ kind: 'course', material })}/>}
         {destination === 'agents' && <div className="workspace-grid">
           {agents.map(agent => {
             const Icon = agentIcons[agent.id]
@@ -446,6 +457,10 @@ export function Nexus() {
           && !outputs.some(output => matches(query, output.name, output.detail)) && <p className="muted">No matching commands or destinations.</p>}
       </div>
       </div>
+    </Dialog>}
+    {overlay?.kind === 'course' && <Dialog title={overlay.material.title} label="THE MASTER CREATOR" onClose={() => setOverlay(null)}>
+      <p>Apply this material by saving an idea, practice, or next step and linking it to ideas already in your framework.</p>
+      <FrameworkWorkspace key={overlay.material.id} store={framework} course={overlay.material}/>
     </Dialog>}
     {overlay?.kind === 'agent' && <Dialog key={'framework-' + overlay.id + ':' + (overlay.domain ?? '')}
       title={selectedAgent?.name ?? 'VISIONS Core'} label={selectedAgent?.archetype ?? 'THE FULL VISIONS FRAMEWORK'} onClose={() => setOverlay(null)}>

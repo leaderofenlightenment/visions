@@ -486,3 +486,10 @@ kbd { display: inline-flex; align-items: center; gap: 3px; font: .68rem var(--mo
 .lens-node span { width: 9px; height: 9px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 9px var(--accent); }
 .lens-node[aria-pressed="true"] span { width: 14px; height: 14px; border: 2px solid #fff; }
 .domain-framework { margin-bottom: 12px; }
+
+.course-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; margin-bottom: 12px; }
+.course-banner span { display: block; color: var(--muted); font-size: .78rem; margin-top: 3px; }
+.course-library { margin-bottom: 12px; }
+.course-material h4 { margin: 0 0 4px; }
+.course-material details { margin-top: 8px; }
+.course-material details > .course-material { margin-left: 8px; }

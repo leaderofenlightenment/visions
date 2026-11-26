@@ -1,7 +1,8 @@
 import { agents, modules, type AgentId, type ModuleId } from './codex'
+import { courseMaterial } from './course'
 import { isUuid } from './personal'
 
-export type Idea = { id: string; lens: AgentId; domains: ModuleId[]; title: string; detail: string }
+export type Idea = { id: string; lens: AgentId; domains: ModuleId[]; title: string; detail: string; courseId?: string }
 export type Connection = [string, string]
 export type Framework = { ideas: Idea[]; connections: Connection[] }
 export const emptyFramework: Framework = { ideas: [], connections: [] }
@@ -36,8 +37,10 @@ export function parseFramework(value: unknown): Framework | null {
     const inputDomains = item.domains
     const domains = modules.filter(module => inputDomains.includes(module.id)).map(module => module.id)
     if (!lens || !domains.length || domains.length !== inputDomains.length) return null
+    if (item.courseId !== undefined && (typeof item.courseId !== 'string' || !/^[0-9a-f]{32}$/.test(item.courseId))) return null
+    const source = courseMaterial(item.courseId)
     ids.add(item.id)
-    ideas.push({ id: item.id, lens, domains, title: item.title.trim(), detail: item.detail.trim() })
+    ideas.push({ id: item.id, lens, domains, title: item.title.trim(), detail: item.detail.trim(), ...(item.courseId ? { courseId: source?.id ?? item.courseId as string } : {}) })
   }
   const connections: Connection[] = []
   const seen = new Set<string>()

@@ -28,3 +28,10 @@ test('sprouts only occupied branches, links same domains, and connects ideas exp
   assert.equal(network.edges.filter(edge => edge.kind === 'domain').length, 1)
   assert.equal(network.edges.filter(edge => edge.kind === 'connection').length, 1)
 })
+
+test('preserves material provenance in a persisted framework idea', () => {
+  const courseId = '189776d8f6278108ac1cfffcbc4605e8'
+  const graph = parseFramework({ ideas: [{ ...first, courseId }], connections: [] })
+  assert.equal(graph?.ideas[0].courseId, courseId)
+  assert.equal(parseFramework({ ideas: [{ ...first, courseId: 'https://example.org' }], connections: [] }), null)
+})

@@ -4,17 +4,18 @@ import { useState, type CSSProperties, type FormEvent } from 'react'
 import { Crosshair, Link2, Plus } from 'lucide-react'
 import { agents, modules, type AgentId, type ModuleId } from '@/lib/codex'
 import { frameworkSummary, ideaLimit, lensQuestions, removeIdea, type Framework, type Idea } from '@/lib/framework'
+import { courseMaterial, courseUrl, type CourseMaterial } from '@/lib/course'
 import { LensNetwork } from './lens-network'
 import type { FrameworkStore } from './use-framework'
 
-type Props = { store: FrameworkStore; lens?: AgentId; domain?: ModuleId }
-type Draft = { lens: AgentId; domains: ModuleId[]; idea?: Idea }
+type Props = { store: FrameworkStore; lens?: AgentId; domain?: ModuleId; course?: CourseMaterial }
+type Draft = { lens: AgentId; domains: ModuleId[]; idea?: Idea; course?: CourseMaterial }
 
-export function FrameworkWorkspace({ store, lens, domain }: Props) {
+export function FrameworkWorkspace({ store, lens, domain, course }: Props) {
   const { graph } = store
   const [filterLens, setFilterLens] = useState<AgentId | ''>(lens ?? '')
   const [filterDomain, setFilterDomain] = useState<ModuleId | ''>(domain ?? '')
-  const [draft, setDraft] = useState<Draft | null>(null)
+  const [draft, setDraft] = useState<Draft | null>(course ? { lens: course.lens, domains: course.domains, course } : null)
   const [selected, setSelected] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
@@ -23,7 +24,7 @@ export function FrameworkWorkspace({ store, lens, domain }: Props) {
   const summary = frameworkSummary(graph)
   const current = graph.ideas.find(idea => idea.id === selected)
   const visible = graph.ideas.filter(idea => (!filterLens || idea.lens === filterLens)
-    && (!filterDomain || idea.domains.includes(filterDomain)))
+    && (!filterDomain || idea.domains.includes(filterDomain)) && (!course || idea.courseId === course.id))
   const linked = (id: string) => graph.ideas.filter(idea => graph.connections.some(edge => edge.includes(id) && edge.includes(idea.id) && idea.id !== id))
 
   async function commit(next: Framework, success: string) {
@@ -42,6 +43,7 @@ export function FrameworkWorkspace({ store, lens, domain }: Props) {
     const idea: Idea = {
       id: draft.idea?.id ?? crypto.randomUUID(), lens: data.get('lens') as AgentId,
       domains: data.getAll('domain') as ModuleId[], title: String(data.get('title')), detail: String(data.get('detail')),
+      ...(draft.idea?.courseId || draft.course?.id ? { courseId: draft.idea?.courseId ?? draft.course?.id } : {}),
     }
     if (!idea.domains.length || !idea.title.trim()) {
       setError('Give this idea a title and choose at least one life domain.')
@@ -67,7 +69,7 @@ export function FrameworkWorkspace({ store, lens, domain }: Props) {
 
   function startDraft(withLens: AgentId = filterLens || 'vision', domains: ModuleId[] = filterDomain ? [filterDomain] : []) {
     setError('')
-    setDraft({ lens: withLens, domains })
+    setDraft(course ? { lens: course.lens, domains: course.domains, course } : { lens: withLens, domains })
   }
 
   if (store.mode === 'loading') return <p role="status">Opening your VISIONS framework…</p>
@@ -80,7 +82,8 @@ export function FrameworkWorkspace({ store, lens, domain }: Props) {
       <small>{store.mode === 'device' ? 'Stored on this browser' : 'Private Supabase workspace'}</small>
     </div>
     {store.mode === 'device' && <p className="muted">Use non-sensitive ideas in this browser workspace. Account data is stored separately when Supabase is configured.</p>}
-    {!lens && !domain && <>
+    {course && <p><a className="secondary-button" href={courseUrl(course.id)} target="_blank" rel="noreferrer">Read this material in Notion</a></p>}
+    {!lens && !domain && !course && <>
       <p>Start with a value, question, or practice. Apply any of the seven VISIONS lenses to one or more life domains, then connect related ideas.</p>
       <div className="framework-matrix-wrap">
         <table className="framework-matrix">
@@ -120,7 +123,9 @@ export function FrameworkWorkspace({ store, lens, domain }: Props) {
     {error && <p role="alert">{error}</p>}
     {note && <p role="status">{note}</p>}
     {draft && <IdeaForm key={draft.idea?.id ?? draft.lens + draft.domains.join(',')} draft={draft} graph={graph} busy={busy}
-      connected={draft.idea ? linked(draft.idea.id).map(idea => idea.id) : []} onSave={saveIdea} onCancel={() => { setDraft(null); setError('') }}/>}
+      connected={draft.idea ? linked(draft.idea.id).map(idea => idea.id) : draft.course
+        ? graph.ideas.filter(idea => idea.courseId && (idea.courseId === draft.course?.id || idea.courseId === draft.course?.parent || courseMaterial(idea.courseId)?.parent === draft.course?.id))
+          .slice(0, Math.max(0, 160 - graph.connections.length)).map(idea => idea.id) : []} onSave={saveIdea} onCancel={() => { setDraft(null); setError('') }}/>}
     {filterLens && visible.length > 0 && <LensNetwork ideas={visible} connections={graph.connections}
       selected={selected} onSelect={id => { setSelected(id); setConfirm('') }}/>}
     {!visible.length && !draft && <p className="muted">No ideas in this view yet.</p>}
@@ -137,6 +142,7 @@ export function FrameworkWorkspace({ store, lens, domain }: Props) {
     {current && <article className="personal-record framework-detail">
       <h3>{current.title}</h3>
       <small>{agents.find(agent => agent.id === current.lens)?.name} · {current.domains.map(id => modules.find(module => module.id === id)?.name).join(', ')}</small>
+      {current.courseId && <p><a className="secondary-button" href={courseUrl(current.courseId)} target="_blank" rel="noreferrer">{courseMaterial(current.courseId)?.title ?? 'Course source'}</a></p>}
       {current.detail && <p>{current.detail}</p>}
       {linked(current.id).length > 0 && <div className="framework-linked">
         <h4>Connected ideas</h4>
@@ -177,7 +183,7 @@ function IdeaForm({ draft, graph, busy, connected, onSave, onCancel }: {
       {agents.map(agent => <option value={agent.id} key={agent.id}>{agent.name}</option>)}
     </select></label>
     <label>Idea title <input name="title" autoComplete="off" maxLength={100} required defaultValue={draft.idea?.title}/></label>
-    <label>Reflection <textarea name="detail" maxLength={400} rows={3} placeholder={lensQuestions[lens]} defaultValue={draft.idea?.detail}/></label>
+    <label>Reflection <textarea name="detail" maxLength={400} rows={3} placeholder={draft.course ? 'What will you apply, and what is your next step?' : lensQuestions[lens]} defaultValue={draft.idea?.detail}/></label>
     <fieldset><legend>Applies across</legend>
       {modules.map(module => <label className="framework-check" key={module.id}><input name="domain" type="checkbox" value={module.id} defaultChecked={draft.domains.includes(module.id)}/>{module.name}</label>)}
     </fieldset>

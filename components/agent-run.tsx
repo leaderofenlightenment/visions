@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { coreModes } from '@/lib/plans'
 import type { Source } from '@/lib/sources'
 
 type Citation = Source & { citation: string }
 
 export function AgentRun() {
-  const [access, setAccess] = useState<{ configured: boolean; signedIn: boolean } | null>(null)
+  const [access, setAccess] = useState<{ configured: boolean; signedIn: boolean; entitled?: boolean } | null>(null)
   const [reflection, setReflection] = useState('')
   const [available, setAvailable] = useState<Source[]>([])
   const [sourceError, setSourceError] = useState('')
@@ -19,13 +20,16 @@ export function AgentRun() {
 
   useEffect(() => {
     const check = new AbortController()
-    fetch('/api/agents', { signal: check.signal }).then(response => response.json()).then(setAccess)
+    fetch('/api/agents', { signal: check.signal }).then(async response => {
+      if (!response.ok) throw new Error('Could not check agent access.')
+      return response.json()
+    }).then(setAccess)
       .catch(() => { if (!check.signal.aborted) setError('Could not check agent access.') })
     return () => { check.abort(); active.current?.abort() }
   }, [])
 
   useEffect(() => {
-    if (!access?.signedIn) return
+    if (!access?.entitled) return
     const check = new AbortController()
     fetch('/api/sources?' + new URLSearchParams({ q: sourceQuery }), { signal: check.signal })
       .then(async response => {
@@ -35,7 +39,7 @@ export function AgentRun() {
         setSourceError('')
       }).catch(() => { if (!check.signal.aborted) setSourceError('Could not look up sources.') })
     return () => check.abort()
-  }, [access?.signedIn, sourceQuery])
+  }, [access?.entitled, sourceQuery])
 
   function exportDraft() {
     const heading = '## VISIONS Core reflection\n\n' + reflection
@@ -61,7 +65,7 @@ export function AgentRun() {
     try {
       const response = await fetch('/api/agents', {
         method: 'POST', signal: control.signal, headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ intention: form.get('intention'), consent: form.get('consent') === 'on', sourceIds: selected.map(source => source.id) }),
+        body: JSON.stringify({ intention: form.get('intention'), mode: form.get('mode'), consent: form.get('consent') === 'on', sourceIds: selected.map(source => source.id) }),
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error)
@@ -81,7 +85,9 @@ export function AgentRun() {
     {!access && !error && <p role="status">Checking agent access…</p>}
     {access && !access.configured && <p className="muted">AI provider unconfigured. See the README for setup.</p>}
     {access?.configured && !access.signedIn && <p className="muted">Sign in from Lifestyle, Relationships, or Projects to use Core reflection.</p>}
-    {access?.signedIn && <form className="personal-form" onSubmit={run}>
+    {access?.signedIn && !access.entitled && <p className="muted">Core AI is available on the VISIONS AI and Work with Eric plans.</p>}
+    {access?.entitled && <form className="personal-form" onSubmit={run}>
+      <label>What would you like help with? <select name="mode">{coreModes.map(([mode, name]) => <option key={mode} value={mode}>{name}</option>)}</select></label>
       <label>Intention <textarea name="intention" required maxLength={1000} rows={4} placeholder="Share a non-sensitive question spanning your life domains"/></label>
       <details>
         <summary>Choose sources ({selected.length}/3)</summary>
@@ -95,7 +101,7 @@ export function AgentRun() {
           onClick={() => setSelected(items => items.length < 3 ? [...items, source] : items)}>{source.title} · {source.locator}</button>)}
       </details>
       <label><span><input type="checkbox" name="consent" required style={{ width: 'auto' }}/> Send this intention and selected passages to OpenAI</span></label>
-      <div className="personal-actions"><button className="primary-button" disabled={busy}>Reflect across all seven lenses</button>
+      <div className="personal-actions"><button className="primary-button" disabled={busy}>Run with VISIONS Core</button>
         {busy && <button type="button" className="secondary-button" onClick={() => active.current?.abort()}>Stop waiting</button>}
       </div>
     </form>}

@@ -83,3 +83,19 @@ Learners open **Read in VISIONS** and sign in with an enrolled account. They
 can read imported course pages, open their attachments, and follow links to
 other imported materials inside the app. See the [owner import guide](docs/course-import.md)
 to publish the private course in Supabase and enroll learners.
+
+## Guided framework and course answers
+
+Open **Guided Framework** to enter the 21 free VISIONS answers. Each saved
+answer is a tagged idea in the existing framework. The Nexus draws links
+within each domain and between the same lens across domains. Lifestyle,
+Business, and Relationships collect those answers and any imported course
+applications into three living documents. Each document can be downloaded
+as Markdown. The [learner manual](public/visions-user-guide.pdf) is also
+available from the dashboard.
+
+Course response spaces save to the signed-in learner's private course
+record. Choose **Add answer to VISIONS Core** to review and save a separate
+copy for the network. Editing or removing a course answer does not change
+a copy already saved to the Core. AI never receives these answers
+automatically.

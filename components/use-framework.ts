@@ -9,6 +9,7 @@ type Access =
   | { mode: 'account'; graph: Framework; revision: number }
 
 const key = 'visions.framework.v1'
+const deviceChoice = 'visions.framework-device-mode'
 const empty = JSON.stringify(emptyFramework)
 
 function subscribe(listener: () => void) {
@@ -33,6 +34,7 @@ function readDevice(snapshot: string) {
 export function useFramework() {
   const [access, setAccess] = useState<Access>({ mode: 'loading' })
   const [reload, setReload] = useState(0)
+  const [useDevice, setUseDevice] = useState(false)
   const deviceSnapshot = useSyncExternalStore(subscribe, getDeviceSnapshot, () => empty)
 
   useEffect(() => {
@@ -45,7 +47,13 @@ export function useFramework() {
         .then(async response => {
           const data = await response.json()
           if (!response.ok) throw new Error(data.error ?? 'Could not open the framework.')
-          if (!current.signal.aborted) setAccess(data)
+          if (!current.signal.aborted) {
+            if (data.mode === 'signed-out') {
+              try { setUseDevice(localStorage.getItem(deviceChoice) === 'yes') }
+              catch { /* Device selection is optional. */ }
+            }
+            setAccess(data)
+          }
         })
         .catch(error => {
           if (!current.signal.aborted) setAccess({ mode: 'failed', error: error instanceof Error ? error.message : 'Could not open the framework.' })
@@ -63,12 +71,13 @@ export function useFramework() {
     }
   }, [reload])
 
-  const graph = access.mode === 'account' ? access.graph : access.mode === 'device' ? readDevice(deviceSnapshot) : emptyFramework
+  const mode = access.mode === 'signed-out' && useDevice ? 'device' : access.mode
+  const graph = access.mode === 'account' ? access.graph : mode === 'device' ? readDevice(deviceSnapshot) : emptyFramework
 
   async function save(input: Framework) {
     const next = parseFramework(input)
     if (!next) throw new Error('Check the idea fields and framework limits.')
-    if (access.mode === 'device') {
+    if (mode === 'device') {
       if (getDeviceSnapshot() !== deviceSnapshot) throw new Error('This framework changed in another window. Open the latest graph first.')
       localStorage.setItem(key, JSON.stringify(next))
       window.dispatchEvent(new Event('visions-framework'))
@@ -85,7 +94,13 @@ export function useFramework() {
       ? { mode: 'account', graph: next, revision: data.revision } : current)
   }
 
-  return { graph, mode: access.mode, error: access.mode === 'failed' ? access.error : '', save, reload: () => setReload(value => value + 1) }
+  function openDevice() {
+    try { localStorage.setItem(deviceChoice, 'yes') }
+    catch { /* Storage may be unavailable in this browser. */ }
+    setUseDevice(true)
+  }
+
+  return { graph, mode, openDevice, error: access.mode === 'failed' ? access.error : '', save, reload: () => setReload(value => value + 1) }
 }
 
 export type FrameworkStore = ReturnType<typeof useFramework>

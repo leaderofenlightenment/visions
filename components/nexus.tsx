@@ -15,8 +15,12 @@ import { SourceLibrary } from './source-library'
 import { AgentRun } from './agent-run'
 import { PersonalWorkspace } from './personal-workspace'
 import { CourseLibrary } from './course-library'
+import type { CourseApplication } from './course-answer'
 import { CourseReader } from './course-reader'
 import { courseMaterial, type CourseMaterial } from '@/lib/course'
+import { VisionsPlans } from './visions-plans'
+import { DomainDocument, GuidedWorkspace, guidePdf } from './guided-workspace'
+import { frameworkConnections } from '@/lib/guided'
 import { FrameworkWorkspace } from './framework-workspace'
 import { useFramework } from './use-framework'
 
@@ -24,7 +28,7 @@ type Overlay =
   | { kind: 'palette' | 'notifications' | 'profile' | 'plan' }
   | { kind: 'agent'; id: AgentId | 'core'; domain?: ModuleId }
   | { kind: 'domain' | 'stage'; index: number }
-  | { kind: 'course' | 'reading'; material: CourseMaterial }
+  | { kind: 'course' | 'reading'; material: CourseMaterial; application?: CourseApplication }
   | { kind: 'output'; id: (typeof outputs)[number]['id'] }
 
 type LocalPreferences = { reduced?: boolean; lite?: boolean; modules?: Partial<Record<ModuleId, boolean>> }
@@ -104,6 +108,7 @@ function KnowledgeMap() {
 export function Nexus() {
   const [lifestyleSection, setLifestyleSection] = useState<'habit' | 'journal'>('habit')
   const framework = useFramework()
+  const [guideDomain, setGuideDomain] = useState<ModuleId>('lifestyle')
   const [overlay, setOverlay] = useState<Overlay | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -164,6 +169,11 @@ export function Nexus() {
     setMenuOpen(false)
     setOverlay(null)
     window.scrollTo({ top: 0 })
+  }
+
+  function openGuide(domain: ModuleId = 'lifestyle') {
+    setGuideDomain(domain)
+    navigate('guide')
   }
 
   function openPlan() {
@@ -270,6 +280,11 @@ export function Nexus() {
           </div>
           <span className="preview-badge"><i/> VISIONS FRAMEWORK</span>
         </div>
+        <section className="panel course-banner" aria-label="Start your VISIONS framework">
+          <div><strong>Start your VISIONS framework</strong><span>Answer 21 prompts, see them in the network, and build your three domain documents.</span></div>
+          <div className="personal-actions"><button className="primary-button" onClick={() => openGuide()}>Open guided framework</button>
+            <a className="secondary-button" href={guidePdf} download>PDF manual</a></div>
+        </section>
         <section className="panel course-banner" aria-label="The Master Creator course">
           <div><strong>The Master Creator</strong><span>Apply the course across Lifestyle, Business, and Relationships.</span></div>
           <button className="primary-button" onClick={() => navigate('course')}>Explore course</button>
@@ -304,7 +319,7 @@ export function Nexus() {
               <strong>{framework.graph.ideas.length ? 'Your framework' : 'Reality Design'}</strong>
               <p>{framework.graph.ideas.length ? 'Follow a branch to explore how your ideas connect.' : 'Start with a value, question, or practice in the Core.'}</p>
               <div className="focus-rule"/>
-              <span className="eyebrow">{framework.graph.ideas.length} IDEAS · {framework.graph.connections.length} CONNECTIONS</span>
+              <span className="eyebrow">{framework.graph.ideas.length} IDEAS · {frameworkConnections(framework.graph).length} CONNECTIONS</span>
             </section>
             <section className="panel activity-panel">
               <h2 className="panel-heading"><Activity size={15}/> Framework Lenses</h2>
@@ -360,6 +375,9 @@ export function Nexus() {
         </div>
         {destination === 'course' && <CourseLibrary graph={framework.graph} onRead={material => readCourse(material.id)} onApply={material => setOverlay({ kind: 'course', material })}/>}
         {destination === 'content' && <CourseLibrary graph={framework.graph} toolkit onRead={material => readCourse(material.id)} onApply={material => setOverlay({ kind: 'course', material })}/>}
+        {destination === 'guide' && <GuidedWorkspace key={guideDomain} initial={guideDomain} store={framework} onSignIn={() => navigate('projects')}/>}
+        {destination === 'plans' && <VisionsPlans onStart={() => openGuide()} onCourse={() => navigate('course')}/>}
+        {selectedModule && <DomainDocument store={framework} domain={selectedModule.id} onStart={() => openGuide(selectedModule.id)}/>}
         {selectedModule && <CourseLibrary key={selectedModule.id} graph={framework.graph} domain={selectedModule.id} onRead={material => readCourse(material.id)}
           onApply={material => setOverlay({ kind: 'course', material })}/>}
         {destination === 'agents' && <div className="workspace-grid">
@@ -383,7 +401,7 @@ export function Nexus() {
         </section>}
         {destination === 'codex' && <section className="panel workspace-surface">
           <h2>Your VISIONS framework</h2>
-          <FrameworkWorkspace store={framework} onReadCourse={readCourse}/>
+          <FrameworkWorkspace store={framework} onReadCourse={readCourse} onOpenGuide={openGuide}/>
         </section>}
         {(destination === 'knowledge' || destination === 'codex') && <SourceLibrary/>}
         {destination === 'content' && <div className="workspace-grid">{outputs.map(output => {
@@ -414,7 +432,7 @@ export function Nexus() {
         </section>}
         {selectedModule && <section className="panel workspace-surface domain-framework">
           <h2>{selectedModule.name} in your framework</h2>
-          <FrameworkWorkspace store={framework} onReadCourse={readCourse} key={selectedModule.id} domain={selectedModule.id}/>
+          <FrameworkWorkspace store={framework} onReadCourse={readCourse} onOpenGuide={openGuide} key={selectedModule.id} domain={selectedModule.id}/>
         </section>}
         {destination === 'lifestyle' && <>
           <div className="personal-actions" aria-label="Lifestyle workspace">
@@ -466,16 +484,16 @@ export function Nexus() {
     </Dialog>}
     {overlay?.kind === 'reading' && <Dialog key={'read:' + overlay.material.id} title={overlay.material.title} label="THE MASTER CREATOR" onClose={() => setOverlay(null)}>
       <CourseReader key={overlay.material.id} id={overlay.material.id} onOpen={readCourse}
-        onApply={() => setOverlay({ kind: 'course', material: overlay.material })}/>
+        onApply={application => setOverlay({ kind: 'course', material: overlay.material, application })}/>
     </Dialog>}
     {overlay?.kind === 'course' && <Dialog title={overlay.material.title} label="THE MASTER CREATOR" onClose={() => setOverlay(null)}>
       <p>Apply this material by saving an idea, practice, or next step and linking it to ideas already in your framework.</p>
-      <FrameworkWorkspace key={overlay.material.id} store={framework} onReadCourse={readCourse} course={overlay.material}/>
+      <FrameworkWorkspace key={overlay.material.id} store={framework} onReadCourse={readCourse} onOpenGuide={openGuide} course={overlay.material} application={overlay.application}/>
     </Dialog>}
     {overlay?.kind === 'agent' && <Dialog key={'framework-' + overlay.id + ':' + (overlay.domain ?? '')}
       title={selectedAgent?.name ?? 'VISIONS Core'} label={selectedAgent?.archetype ?? 'THE FULL VISIONS FRAMEWORK'} onClose={() => setOverlay(null)}>
       <p>{selectedAgent?.description ?? 'Bring Lifestyle, Business, and Relationships into one framework. Each VISIONS lens helps you notice a different aspect of the same life.'}</p>
-      <FrameworkWorkspace store={framework} onReadCourse={readCourse} lens={selectedAgent?.id} domain={overlay.domain}/>
+      <FrameworkWorkspace store={framework} onReadCourse={readCourse} onOpenGuide={openGuide} lens={selectedAgent?.id} domain={overlay.domain}/>
       {!selectedAgent && <details><summary>Reflect with the VISIONS Core</summary><AgentRun/></details>}
       {selectedAgent && <button className="secondary-button" type="button" onClick={() => selectAgent('core')}>Open the full framework</button>}
     </Dialog>}

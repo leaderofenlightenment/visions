@@ -1,0 +1,44 @@
+[
+  {
+    "id": "lifestyle",
+    "title": "The Theosis Framework",
+    "pillars": ["Mind", "Body", "Soul"],
+    "prompts": [
+      ["vision", "Vision of Theosis", "Mind", "What would a deliberate 24-hour rhythm look like if your evening made room for stillness and prepared you for the next morning?"],
+      ["integration", "Intelligence of God", "Body", "How can sleep, food, movement, and prayer support one another in your actual week?"],
+      ["story", "Story of Mind", "Soul", "Recall a season when your old way of living stopped working. What did it teach you about what was underneath the habit?"],
+      ["insight", "Inspiration from Saints", "Mind", "What enduring truth about God and the soul can anchor your daily attention? Whose example helps you remember it?"],
+      ["outcome", "Outcomes in Life", "Soul", "What needs to change in the next forty days, and what concrete fruit would you look for by day ninety?"],
+      ["negation", "Narrative of Identity", "Body", "What story do you tell yourself just before compromising rest, focus, or patience? Name a truer response you can practice."],
+      ["system", "Systems for Mastery", "Mind", "Where did order break down in the last seven days? Trace the pattern through mind, body, or soul and choose one rhythm to revisit."]
+    ]
+  },
+  {
+    "id": "business",
+    "title": "The Creative Framework",
+    "pillars": ["Asceticism", "Skillset", "Community"],
+    "prompts": [
+      ["vision", "Vision of Idea", "Asceticism", "What work would you create if your attention were protected? What would you stop consuming or doing to give it room?"],
+      ["integration", "Intrigue through Science", "Skillset", "What single craft are you deepening? What evidence or small experiment would help you practice it systematically while honoring your other responsibilities?"],
+      ["story", "Stories of the Saints", "Community", "Name a turning point in your craft and who stood with you. What story or example from the saints helps you understand that change?"],
+      ["insight", "Insight from Scripture", "Skillset", "What costly lesson has your craft taught you about discipline or vocation? What passage helps you examine it?"],
+      ["outcome", "Outcomes from Practice", "Asceticism", "What observable fruit would show that practice is serving its purpose? Describe a finish line that leaves room for real rest."],
+      ["negation", "Negation of Objection", "Skillset", "What objection or shortcut needs a truthful answer? Which skill must you build through practice before you claim it?"],
+      ["system", "Systemization of Principles", "Asceticism", "What is the first sign that the work has drifted from its purpose? Identify a principle and a recurring practice that would address it."]
+    ]
+  },
+  {
+    "id": "relationships",
+    "title": "The Psychological Framework",
+    "pillars": ["Self-Mastery", "Household Dynamics", "Ministry"],
+    "prompts": [
+      ["vision", "Vision of Character", "Self-Mastery", "What would peace and relational order look like if those closest to you received your best attention and care?"],
+      ["integration", "Image of God", "Household Dynamics", "Where is your personal discipline helping the people closest to you? Where could remembering their dignity change how you show up?"],
+      ["story", "Storytelling as Communication", "Ministry", "What experience can you communicate in service of others, and what blind spot should you keep in view when telling it?"],
+      ["insight", "Intuition and Intention", "Household Dynamics", "Where are you swinging between extremes with someone close to you? What do you sense, what remains uncertain, and how do you intend to respond?"],
+      ["outcome", "Outpouring of Love", "Ministry", "If you kept showing up faithfully for five years, what would have changed for the people or community you serve?"],
+      ["negation", "Non-Negotiables of Commitment", "Self-Mastery", "Name a reactive pattern you want to leave behind and the boundary or commitment you want to practice in its place."],
+      ["system", "Systems of Attachment", "Household Dynamics", "What relational pattern keeps returning, and where do you notice it first? What rhythm of care, accountability, or support would help you respond?"]
+    ]
+  }
+]

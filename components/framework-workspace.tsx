@@ -5,17 +5,23 @@ import { Crosshair, Link2, Plus } from 'lucide-react'
 import { agents, modules, type AgentId, type ModuleId } from '@/lib/codex'
 import { frameworkSummary, ideaLimit, lensQuestions, removeIdea, type Framework, type Idea } from '@/lib/framework'
 import { courseMaterial, type CourseMaterial } from '@/lib/course'
+import { frameworkConnections, guideAnswerLimit } from '@/lib/guided'
+import type { CourseApplication } from './course-answer'
 import { LensNetwork } from './lens-network'
 import type { FrameworkStore } from './use-framework'
 
-type Props = { store: FrameworkStore; lens?: AgentId; domain?: ModuleId; course?: CourseMaterial; onReadCourse: (id: string) => void }
-type Draft = { lens: AgentId; domains: ModuleId[]; idea?: Idea; course?: CourseMaterial }
+type Props = { store: FrameworkStore; lens?: AgentId; domain?: ModuleId; course?: CourseMaterial; application?: CourseApplication; onReadCourse: (id: string) => void; onOpenGuide?: (domain?: ModuleId) => void }
+type Draft = { lens: AgentId; domains: ModuleId[]; idea?: Idea; course?: CourseMaterial; application?: CourseApplication }
 
-export function FrameworkWorkspace({ store, lens, domain, course, onReadCourse }: Props) {
+export function FrameworkWorkspace({ store, lens, domain, course, application, onReadCourse, onOpenGuide }: Props) {
   const { graph } = store
   const [filterLens, setFilterLens] = useState<AgentId | ''>(lens ?? '')
   const [filterDomain, setFilterDomain] = useState<ModuleId | ''>(domain ?? '')
-  const [draft, setDraft] = useState<Draft | null>(course ? { lens: course.lens, domains: course.domains, course } : null)
+  const [draft, setDraft] = useState<Draft | null>(() => {
+    if (!course) return null
+    const existing = application ? graph.ideas.find(idea => idea.courseId === course.id && idea.coursePromptId === application.promptId) : undefined
+    return { lens: existing?.lens ?? course.lens, domains: existing?.domains ?? course.domains, course, idea: existing, application }
+  })
   const [selected, setSelected] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
@@ -25,7 +31,8 @@ export function FrameworkWorkspace({ store, lens, domain, course, onReadCourse }
   const current = graph.ideas.find(idea => idea.id === selected)
   const visible = graph.ideas.filter(idea => (!filterLens || idea.lens === filterLens)
     && (!filterDomain || idea.domains.includes(filterDomain)) && (!course || idea.courseId === course.id))
-  const linked = (id: string) => graph.ideas.filter(idea => graph.connections.some(edge => edge.includes(id) && edge.includes(idea.id) && idea.id !== id))
+  const networkEdges = frameworkConnections(graph)
+  const linked = (id: string, edges = networkEdges) => graph.ideas.filter(idea => edges.some(edge => edge.includes(id) && edge.includes(idea.id) && idea.id !== id))
 
   async function commit(next: Framework, success: string) {
     setBusy(true)
@@ -40,9 +47,13 @@ export function FrameworkWorkspace({ store, lens, domain, course, onReadCourse }
     event.preventDefault()
     if (!draft || busy) return
     const data = new FormData(event.currentTarget)
+    const coursePromptId = draft.application?.promptId ?? draft.idea?.coursePromptId
+    const existing = draft.idea ?? (draft.application && course
+      ? graph.ideas.find(idea => idea.courseId === course.id && idea.coursePromptId === coursePromptId) : undefined)
     const idea: Idea = {
-      id: draft.idea?.id ?? crypto.randomUUID(), lens: data.get('lens') as AgentId,
+      id: existing?.id ?? crypto.randomUUID(), lens: data.get('lens') as AgentId,
       domains: data.getAll('domain') as ModuleId[], title: String(data.get('title')), detail: String(data.get('detail')),
+      ...(coursePromptId ? { coursePromptId } : {}),
       ...(draft.idea?.courseId || draft.course?.id ? { courseId: draft.idea?.courseId ?? draft.course?.id } : {}),
     }
     if (!idea.domains.length || !idea.title.trim()) {
@@ -51,8 +62,8 @@ export function FrameworkWorkspace({ store, lens, domain, course, onReadCourse }
     }
     const connections = graph.connections.filter(edge => !edge.includes(idea.id))
     for (const id of data.getAll('link')) connections.push([idea.id, String(id)])
-    const ideas = draft.idea ? graph.ideas.map(existing => existing.id === idea.id ? idea : existing) : [...graph.ideas, idea]
-    if (await commit({ ideas, connections }, draft.idea ? 'Idea updated.' : 'Idea added to the network.')) {
+    const ideas = existing ? graph.ideas.map(existing => existing.id === idea.id ? idea : existing) : [...graph.ideas, idea]
+    if (await commit({ ideas, connections }, existing ? 'Idea updated.' : 'Idea added to the network.')) {
       setSelected(idea.id)
       setDraft(null)
     }
@@ -78,7 +89,7 @@ export function FrameworkWorkspace({ store, lens, domain, course, onReadCourse }
 
   return <section className="framework-workspace" aria-label="VISIONS framework">
     <div className="framework-summary">
-      <span><Crosshair size={16}/> {graph.ideas.length} {graph.ideas.length === 1 ? 'idea' : 'ideas'} · {graph.connections.length} {graph.connections.length === 1 ? 'connection' : 'connections'}</span>
+      <span><Crosshair size={16}/> {graph.ideas.length} {graph.ideas.length === 1 ? 'idea' : 'ideas'} · {networkEdges.length} {networkEdges.length === 1 ? 'connection' : 'connections'}</span>
       <small>{store.mode === 'device' ? 'Stored on this browser' : 'Private Supabase workspace'}</small>
     </div>
     {store.mode === 'device' && <p className="muted">Use non-sensitive ideas in this browser workspace. Account data is stored separately when Supabase is configured.</p>}
@@ -123,10 +134,10 @@ export function FrameworkWorkspace({ store, lens, domain, course, onReadCourse }
     {error && <p role="alert">{error}</p>}
     {note && <p role="status">{note}</p>}
     {draft && <IdeaForm key={draft.idea?.id ?? draft.lens + draft.domains.join(',')} draft={draft} graph={graph} busy={busy}
-      connected={draft.idea ? linked(draft.idea.id).map(idea => idea.id) : draft.course
+      connected={draft.idea ? linked(draft.idea.id, graph.connections).map(idea => idea.id) : draft.course
         ? graph.ideas.filter(idea => idea.courseId && (idea.courseId === draft.course?.id || idea.courseId === draft.course?.parent || courseMaterial(idea.courseId)?.parent === draft.course?.id))
           .slice(0, Math.max(0, 160 - graph.connections.length)).map(idea => idea.id) : []} onSave={saveIdea} onCancel={() => { setDraft(null); setError('') }}/>}
-    {filterLens && visible.length > 0 && <LensNetwork ideas={visible} connections={graph.connections}
+    {filterLens && visible.length > 0 && <LensNetwork ideas={visible} connections={networkEdges}
       selected={selected} onSelect={id => { setSelected(id); setConfirm('') }}/>}
     {!visible.length && !draft && <p className="muted">No ideas in this view yet.</p>}
     <ul className="framework-ideas">
@@ -151,7 +162,10 @@ export function FrameworkWorkspace({ store, lens, domain, course, onReadCourse }
         </button>)}
       </div>}
       <div className="personal-actions">
-        <button className="secondary-button" disabled={busy} onClick={() => setDraft({ lens: current.lens, domains: current.domains, idea: current })}>Edit idea</button>
+        {current.guideDomain ? <a className="secondary-button" href="#guide" onClick={event => {
+          event.preventDefault()
+          onOpenGuide?.(current.guideDomain)
+        }}>Edit in guided framework</a> : <button className="secondary-button" disabled={busy} onClick={() => setDraft({ lens: current.lens, domains: current.domains, idea: current })}>Edit idea</button>}
         {confirm !== current.id ? <button className="secondary-button" disabled={busy} onClick={() => setConfirm(current.id)}>Remove idea</button> : <>
           <button className="secondary-button" disabled={busy} onClick={async () => {
             if (await commit(removeIdea(graph, current.id), 'Idea and its connections removed.')) {
@@ -182,8 +196,8 @@ function IdeaForm({ draft, graph, busy, connected, onSave, onCancel }: {
     <label>VISIONS lens <select name="lens" value={lens} onChange={event => setLens(event.target.value as AgentId)}>
       {agents.map(agent => <option value={agent.id} key={agent.id}>{agent.name}</option>)}
     </select></label>
-    <label>Idea title <input name="title" autoComplete="off" maxLength={100} required defaultValue={draft.idea?.title}/></label>
-    <label>Reflection <textarea name="detail" maxLength={400} rows={3} placeholder={draft.course ? 'What will you apply, and what is your next step?' : lensQuestions[lens]} defaultValue={draft.idea?.detail}/></label>
+    <label>Idea title <input name="title" autoComplete="off" maxLength={100} required defaultValue={draft.idea?.title ?? (draft.application ? (draft.course?.title.replace(/^\d+\. /, '').slice(0, 70) ?? '') + ' · ' + draft.application.title : undefined)}/></label>
+    <label>Reflection <textarea name="detail" maxLength={draft.course || draft.idea?.courseId ? guideAnswerLimit : 400} rows={3} placeholder={draft.course ? 'What will you apply, and what is your next step?' : lensQuestions[lens]} defaultValue={draft.application?.answer ?? draft.idea?.detail}/></label>
     <fieldset><legend>Applies across</legend>
       {modules.map(module => <label className="framework-check" key={module.id}><input name="domain" type="checkbox" value={module.id} defaultChecked={draft.domains.includes(module.id)}/>{module.name}</label>)}
     </fieldset>

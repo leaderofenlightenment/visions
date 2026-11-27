@@ -9,6 +9,6 @@ export const outputIcons = { music: AudioLines, articles: FileText, posts: Play,
 export const moduleIcons = { lifestyle: Leaf, business: BriefcaseBusiness, relationships: Heart }
 export const navIcons = {
   dashboard: LayoutDashboard, agents: BrainCircuit, lifestyle: Leaf, business: BriefcaseBusiness, relationships: Heart,
-  codex: BookOpen, course: BookOpen, projects: Folder, knowledge: Network, content: Aperture, analytics: ChartNoAxesCombined, settings: Settings,
+  codex: BookOpen, course: BookOpen, projects: Folder, knowledge: Network, content: Aperture, analytics: ChartNoAxesCombined, guide: GitFork, plans: Layers3, settings: Settings,
 }
 export const domainIcons = [BookOpen, BrainCircuit, CircleDot, Aperture, Network, GitFork, Heart, Leaf, BriefcaseBusiness]

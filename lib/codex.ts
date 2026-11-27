@@ -49,7 +49,7 @@ export const stages = [
 export const destinations = [
   ['dashboard', 'Dashboard'], ['agents', 'Agents'], ['lifestyle', 'Lifestyle'], ['business', 'Business'],
   ['relationships', 'Relationships'], ['codex', 'Reality Codex'], ['course', 'Course'], ['projects', 'Projects'],
-  ['knowledge', 'Knowledge'], ['content', 'Content Library'], ['analytics', 'Analytics'], ['settings', 'Settings'],
+  ['knowledge', 'Knowledge'], ['content', 'Content Library'], ['analytics', 'Analytics'], ['guide', 'Guided Framework'], ['plans', 'Plans'], ['settings', 'Settings'],
 ] as const
 
 export type Destination = (typeof destinations)[number][0]

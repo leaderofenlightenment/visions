@@ -502,3 +502,18 @@ kbd { display: inline-flex; align-items: center; gap: 3px; font: .68rem var(--mo
 .course-reading pre { overflow: auto; background: #141022; padding: 8px; border-radius: 6px; }
 .course-reading table { display: block; overflow-x: auto; border-collapse: collapse; }
 .course-reading th, .course-reading td { border: 1px solid #514064; padding: 4px 7px; }
+
+.guided-workspace, .domain-document, .visions-plans { margin-bottom: 12px; }
+.guide-progress { display: grid; gap: 6px; max-width: 360px; margin-block: 14px; color: #ddd0f0; }
+.guide-progress progress { width: 100%; height: 10px; accent-color: #a67ef6; }
+.guide-tabs { margin-bottom: 16px; }
+.guide-tabs [aria-pressed="true"] { border-color: #c7a9ff; color: #e4d6ff; background: #322245; }
+.guide-prompts { display: grid; gap: 13px; }
+.guide-prompt { padding: 12px; border: 1px solid #45345c; border-radius: 8px; background: #161021; }
+.guide-prompt label { display: block; font-weight: 600; }
+.guide-prompt label span { font-family: var(--mono); margin-right: 6px; }
+.guide-prompt p, .domain-document li h3 { margin-block: 5px; }
+.guide-prompt textarea { width: 100%; resize: vertical; border: 1px solid #514064; border-radius: 6px; background: #0c0916; color: var(--text); padding: 8px; }
+.domain-document li p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.course-answer { margin-block: 12px; padding: 12px; border-left: 3px solid #aa82ff; background: #1b1329; border-radius: 0 8px 8px 0; }
+.course-answer legend { color: #e1d1fd; font-weight: 600; padding: 0 6px; }

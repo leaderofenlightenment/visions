@@ -14,5 +14,5 @@ export async function courseAccess() {
     .eq('user_id', data.user.id).maybeSingle()
   if (enrollment.error) return { error: 'Course access could not be checked. Try again shortly.', status: 503 } as const
   if (!enrollment.data) return { error: 'Your account is not enrolled. Contact the course owner for access.', status: 403 } as const
-  return { db } as const
+  return { db, userId: data.user.id } as const
 }

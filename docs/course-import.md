@@ -6,8 +6,7 @@ metadata, and import code.
 
 ## Configure Supabase once
 
-Apply `supabase/migrations/202611260005_course_library.sql` after the first four
-migrations. Set the app's normal Supabase URL and publishable key. The migration
+Apply the checked-in Supabase migrations in filename order. Set the app's normal Supabase URL and publishable key. The migration
 creates `course_documents`, `course_enrollments`, and the private
 `course-materials` Storage bucket.
 
@@ -71,3 +70,11 @@ lesson or attachment URL. To revoke enrollment, remove the corresponding
 `course_enrollments` row. Issued asset links expire after 15 minutes.
 
 [Notion Markdown API](https://developers.notion.com/reference/retrieve-page-markdown)
+
+## Assign a paid tier
+
+An enrollment defaults to `course` ($33). After arranging access with a learner,
+update that learner's existing row to `ai` ($333) or `concierge` ($3,333).
+The AI and concierge tiers both unlock the optional server-side Core AI
+when the provider is configured. Personal coaching and production work
+are arranged directly with Eric. VISIONS has no online payment collection.

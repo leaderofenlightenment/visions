@@ -159,3 +159,48 @@ test('reads lesson content inside VISIONS and follows an internal course referen
   await related.findByRole('heading', { name: 'Related private exercise' })
   assert.equal(screen.queryByRole('link', { name: /notion/i }), null)
 })
+
+test('saving the guided framework creates a branch and updates the corresponding document', async () => {
+  render(<Nexus />)
+  fireEvent.click(screen.getByRole('button', { name: 'Open guided framework' }))
+  const answer = await screen.findByRole('textbox', { name: /Vision of Theosis/ })
+  fireEvent.change(answer, { target: { value: 'Close work at sundown and leave space for prayer.' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Save Lifestyle to VISIONS' }))
+  await screen.findByText('1 of 21 prompts saved')
+  fireEvent.click(screen.getByRole('link', { name: 'Dashboard' }))
+  assert.ok(screen.getByRole('button', { name: 'Lifestyle branch, vision, 1 idea' }))
+  fireEvent.click(screen.getByRole('link', { name: 'Lifestyle' }))
+  assert.ok(screen.getByRole('heading', { name: 'The Theosis Framework document' }))
+  assert.ok(screen.getByText('Close work at sundown and leave space for prayer.'))
+})
+
+test('saves a private course answer then applies a copy with its source to the Core', async () => {
+  const promptId = 'b'.repeat(24)
+  const payloads: unknown[] = []
+  const fetchMock = globalThis.fetch as unknown as { mock: { mockImplementation(impl: (path: string, init?: RequestInit) => Promise<Response>): void } }
+  fetchMock.mock.mockImplementation(async (path, init) => {
+    if (path === '/api/framework') return Response.json({ mode: 'device' })
+    if (init?.method === 'POST') {
+      const result = JSON.parse(String(init.body))
+      payloads.push(result)
+      return Response.json(result)
+    }
+    return Response.json({ parts: [{ markdown: '## Name a rhythm', prompt: { id: promptId, number: 1 } }], answers: [] })
+  })
+  render(<Nexus />)
+  fireEvent.click(screen.getByRole('button', { name: 'Explore course' }))
+  fireEvent.change(screen.getByRole('textbox', { name: 'Find course material' }), { target: { value: 'Sacramental Lifestyle Worksheet' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Read in VISIONS' }))
+  const response = await screen.findByRole('textbox', { name: 'Your answer 1' })
+  const value = 'Make room for an unhurried weekly meal.'
+  fireEvent.change(response, { target: { value } })
+  fireEvent.click(screen.getByRole('button', { name: 'Save answer' }))
+  await screen.findByText('Answer saved in the course.')
+  fireEvent.click(screen.getByRole('button', { name: 'Add answer to VISIONS Core' }))
+  const form = await screen.findByRole('textbox', { name: 'Reflection' })
+  assert.equal((form as HTMLTextAreaElement).value, value)
+  fireEvent.click(screen.getByRole('button', { name: 'Save idea' }))
+  await screen.findByText('Idea added to the network.')
+  assert.deepEqual(payloads, [{ promptId, answer: value }])
+  assert.ok(localStorage.getItem('visions.framework.v1')?.includes(promptId))
+})

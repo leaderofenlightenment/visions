@@ -3,6 +3,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { CourseAnswer, type CourseApplication } from './course-answer'
+import type { CourseResponse, WorksheetPart } from '@/lib/course-worksheet'
 import { courseMaterial } from '@/lib/course'
 
 const mediaUrl = /^\/api\/course\/media\/[a-f0-9]{64}\.[a-z0-9]{1,8}$/
@@ -17,9 +19,9 @@ function readerUrl(url: string) {
 }
 
 export function CourseReader({ id, onOpen, onApply }: {
-  id: string; onOpen: (id: string) => void; onApply: () => void
+  id: string; onOpen: (id: string) => void; onApply: (application?: CourseApplication) => void
 }) {
-  const [resource, setResource] = useState<{ markdown: string } | { error: string; status: number } | null>(null)
+  const [resource, setResource] = useState<{ parts: WorksheetPart[]; answers: CourseResponse[]; writable: boolean } | { error: string; status: number } | null>(null)
   const [retry, setRetry] = useState(0)
   const [signingIn, setSigningIn] = useState(false)
   const [loginError, setLoginError] = useState('')
@@ -28,7 +30,7 @@ export function CourseReader({ id, onOpen, onApply }: {
     function load() {
       fetch('/api/course/' + id, { signal: pending.signal, cache: 'no-store' }).then(async response => {
         const data = await response.json()
-        if (!pending.signal.aborted) setResource(response.ok ? { markdown: data.markdown } : { error: data.error, status: response.status })
+        if (!pending.signal.aborted) setResource(response.ok ? { parts: data.parts ?? [{ markdown: data.markdown }], answers: data.answers ?? [], writable: data.writable !== false } : { error: data.error, status: response.status })
       }).catch(() => {
         if (!pending.signal.aborted) setResource({ error: 'Could not open the course material.', status: 503 })
       })
@@ -69,7 +71,8 @@ export function CourseReader({ id, onOpen, onApply }: {
   </div>
 
   return <section aria-label="Course material">
-    <div className="course-reading">
+    {!resource.writable && <p role="alert">Course answers are temporarily unavailable. You can still read the material.</p>}
+    <div className="course-reading">{resource.parts.map((part, index) => <div key={part.prompt?.id ?? 'text-' + index}>
       <Markdown remarkPlugins={[remarkGfm]} skipHtml
         urlTransform={readerUrl}
         components={{
@@ -94,8 +97,10 @@ export function CourseReader({ id, onOpen, onApply }: {
             // eslint-disable-next-line @next/next/no-img-element
             return <img src={src} alt={alt ?? ''} loading="lazy"/>
           },
-        }}>{resource.markdown}</Markdown>
-    </div>
-    <button type="button" className="primary-button" onClick={onApply}>Apply in VISIONS</button>
+        }}>{part.markdown}</Markdown>
+      {part.prompt && <CourseAnswer key={part.prompt.id} prompt={part.prompt} materialId={id} writable={resource.writable} onApply={onApply}
+        initial={resource.answers.find(answer => answer.promptId === part.prompt?.id)?.answer ?? ''}/>}
+    </div>)}</div>
+    <button type="button" className="primary-button" onClick={() => onApply()}>Apply in VISIONS</button>
   </section>
 }

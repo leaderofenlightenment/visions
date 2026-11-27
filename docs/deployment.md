@@ -6,7 +6,7 @@ supported by the project's package manifest. Use a test Supabase project and
 preview access controls for the first hosted deployment.
 
 Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the
-preview environment to exercise authenticated storage. Apply the four
+preview environment to exercise authenticated storage. Apply the checked-in
 migrations in order and create two test accounts. Add `OPENAI_API_KEY` and
 `OPENAI_MODEL` as server-side settings only when testing Core reflection.
 

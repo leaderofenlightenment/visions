@@ -1,7 +1,8 @@
 import { agents, modules, type AgentId, type ModuleId } from './codex'
+import { guideAnswerLimit, guidedPrompt } from './guided'
 import { isUuid } from './personal'
 
-export type Idea = { id: string; lens: AgentId; domains: ModuleId[]; title: string; detail: string; courseId?: string }
+export type Idea = { id: string; lens: AgentId; domains: ModuleId[]; title: string; detail: string; courseId?: string; coursePromptId?: string; guideDomain?: ModuleId }
 export type Connection = [string, string]
 export type Framework = { ideas: Idea[]; connections: Connection[] }
 export const emptyFramework: Framework = { ideas: [], connections: [] }
@@ -27,18 +28,42 @@ export function parseFramework(value: unknown): Framework | null {
     || value.ideas.length > ideaLimit || value.connections.length > connectionLimit) return null
   const ideas: Idea[] = []
   const ids = new Set<string>()
+  const guideSlots = new Set<string>()
+  const courseSlots = new Set<string>()
   for (const item of value.ideas as unknown[]) {
     if (!object(item) || !isUuid(item.id) || ids.has(item.id)
       || typeof item.title !== 'string' || typeof item.detail !== 'string'
-      || !item.title.trim() || item.title.length > 100 || item.detail.length > 400
+      || !item.title.trim() || item.title.length > 100
       || !Array.isArray(item.domains)) return null
     const lens = agents.find(agent => agent.id === item.lens)?.id
     const inputDomains = item.domains
     const domains = modules.filter(module => inputDomains.includes(module.id)).map(module => module.id)
     if (!lens || !domains.length || domains.length !== inputDomains.length) return null
     if (item.courseId !== undefined && (typeof item.courseId !== 'string' || !/^[0-9a-f]{32}$/.test(item.courseId))) return null
+    const guideDomain = item.guideDomain === undefined ? undefined : modules.find(domain => domain.id === item.guideDomain)?.id
+    if (item.guideDomain !== undefined && (!guideDomain || domains.length !== 1 || domains[0] !== guideDomain || item.courseId)) return null
+    const guide = guideDomain ? guidedPrompt(guideDomain, lens) : undefined
+    if (guideDomain && (!guide || !item.detail.trim())) return null
+    const sizeLimit = guideDomain || item.courseId ? guideAnswerLimit : 400
+    if (item.detail.length > sizeLimit) return null
+    if (item.coursePromptId !== undefined && (!item.courseId || typeof item.coursePromptId !== 'string' || !/^[0-9a-f]{24}$/.test(item.coursePromptId))) return null
+    if (guideDomain) {
+      const key = guideDomain + ':' + lens
+      if (guideSlots.has(key)) return null
+      guideSlots.add(key)
+    }
+    if (item.coursePromptId) {
+      const key = item.courseId + ':' + item.coursePromptId
+      if (courseSlots.has(key)) return null
+      courseSlots.add(key)
+    }
     ids.add(item.id)
-    ideas.push({ id: item.id, lens, domains, title: item.title.trim(), detail: item.detail.trim(), ...(item.courseId ? { courseId: item.courseId as string } : {}) })
+    ideas.push({
+      id: item.id, lens, domains, title: guide?.[1] ?? item.title.trim(), detail: item.detail.trim(),
+      ...(guideDomain ? { guideDomain } : {}),
+      ...(item.courseId ? { courseId: item.courseId as string } : {}),
+      ...(item.coursePromptId ? { coursePromptId: item.coursePromptId as string } : {}),
+    })
   }
   const connections: Connection[] = []
   const seen = new Set<string>()
@@ -50,7 +75,8 @@ export function parseFramework(value: unknown): Framework | null {
     connections.push([first, second])
     seen.add(key)
   }
-  return { ideas, connections }
+  const graph = { ideas, connections }
+  return new TextEncoder().encode(JSON.stringify(graph)).length <= 215000 ? graph : null
 }
 
 export function removeIdea(graph: Framework, id: string): Framework {

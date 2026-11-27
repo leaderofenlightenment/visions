@@ -1,4 +1,5 @@
 import { modules, type AgentId, type ModuleId } from './codex'
+import { frameworkConnections } from './guided'
 import { frameworkSummary, type Framework } from './framework'
 
 type Point = { x: number; y: number }
@@ -50,7 +51,7 @@ export function frameworkNetwork(graph: Framework, center: Point) {
       edges.push({ id: from.id + ':' + to.id, from, to, color: domain.color, kind: 'domain' })
     }
   }
-  for (const [a, b] of graph.connections) {
+  for (const [a, b] of frameworkConnections(graph)) {
     const from = dots.get(a)
     const to = dots.get(b)
     if (from && to) edges.push({ id: a + ':' + b, from, to, color: '#dfd0ff', kind: 'connection' })

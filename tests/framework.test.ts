@@ -35,3 +35,16 @@ test('preserves material provenance in a persisted framework idea', () => {
   assert.equal(graph?.ideas[0].courseId, courseId)
   assert.equal(parseFramework({ ideas: [{ ...first, courseId: 'https://example.org' }], connections: [] }), null)
 })
+
+test('keeps the seven guided prompts in order in each domain and derives cross-domain links', async () => {
+  const { guideAnswers, guidedDomains, frameworkConnections, saveGuideAnswers } = await import('../lib/guided.ts')
+  assert.deepEqual(guidedDomains.map(domain => domain.prompts.map(prompt => prompt[0]).join(',')),
+    Array(3).fill('vision,integration,story,insight,outcome,negation,system'))
+  let graph = saveGuideAnswers({ ideas: [], connections: [] }, 'lifestyle', { vision: 'Protect a quiet evening.' }, () => first.id)
+  graph = saveGuideAnswers(graph, 'business', { vision: 'Leave space for study.' }, () => second.id)
+  assert.deepEqual(frameworkConnections(graph), [[first.id, second.id]])
+  graph = saveGuideAnswers(graph, 'lifestyle', { vision: 'Rest before work.' }, () => assert.fail('Edited answer got a new identity'))
+  assert.equal(guideAnswers(graph, 'lifestyle')[0].title, 'Vision of Theosis')
+  assert.equal(parseFramework(graph)?.ideas[0].detail, 'Rest before work.')
+  assert.equal(parseFramework({ ideas: [...graph.ideas, { ...graph.ideas[0], id: '00000000-0000-0000-0000-000000000003' }], connections: [] }), null)
+})

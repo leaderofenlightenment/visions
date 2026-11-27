@@ -287,6 +287,12 @@ button, a, input, textarea, summary { -webkit-tap-highlight-color: transparent; 
 .codex-reading > summary { color: #e3d1fb; cursor: pointer; font-weight: 500; line-height: 1.45; }
 .codex-reading[open] > summary { margin-bottom: 10px; }
 .codex-reading li { margin-bottom: .45rem; line-height: 1.55; }
+.chatgpt-guide { border-block: 1px solid var(--line); padding-block: 10px; margin-bottom: 10px; }
+.map-review { margin-block: 15px; }
+.map-review ul { max-height: 22rem; overflow: auto; padding-inline-start: 24px; }
+.map-review b { display: block; color: var(--muted); }
+.map-review p { margin: 5px 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.map-replace { display: flex; align-items: flex-start; gap: 8px; margin-block: 12px; }
 .movement-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 6px; margin-block: 16px 22px; }
 .movement-tabs button { justify-content: space-between; padding-inline: 8px; }
 .movement-tabs small { opacity: .72; font: .63rem var(--mono); white-space: nowrap; }

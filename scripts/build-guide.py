@@ -92,13 +92,15 @@ def note(top, label, body):
 y = begin(1, 'Start here', 'VISIONS Reality Codex',
           'How to use the VISIONS Core and carry your answers into everyday life.')
 y = section(y, '01', 'Open the Core',
-            'Select VISIONS Core from the sidebar or the center of the Nexus. Work through Vision, Integration, Story, Insight, Outcome, Negation, and System in order.')
+            'Select VISIONS Core from the sidebar or the center of the Nexus. Work through Vision, Interest, Story, Insight, Outcome, Negation, and Systemization in order.')
 y = section(y, '02', 'Save each movement across three topics',
             'Each movement gives you one prompt for Theosis, one for Creativity, and one for Psychology. Save your answers before leaving the Core. You can return at any time and revise them.')
 y = section(y, '03', 'Use your documents',
             'Open Lifestyle for your Rule of Life, Business for your Business Plan, and Relationships for your Relationship Management document. Each one updates from your saved Core answers and can be downloaded.')
 y = note(y - 6, 'Read across content domains',
          'Health runs through Mind, Asceticism, and Self-Mastery. Wealth runs through Body, Skillset, and Household Dynamics. Relationships run through Soul, Community, and Ministry.')
+y = note(y, 'Optional ChatGPT guide',
+         'Open Use ChatGPT in the Core for the guide instructions. ChatGPT walks you through one movement per turn. You can review and import the finished map into VISIONS.')
 note(y, 'Your answers belong to you',
      'Use your signed-in workspace for private entries. Your browser and account workspaces are separate. Theosis belongs to the sacramental and theological life of the Orthodox Church. Use pastoral guidance for personal spiritual questions.')
 pdf.showPage()

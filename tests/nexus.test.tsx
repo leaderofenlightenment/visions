@@ -180,3 +180,36 @@ test('saves a private course answer then applies a copy with its source to the C
   fireEvent.click(screen.getByRole('link', { name: 'VISIONS Core' }))
   assert.ok(await screen.findByText('Saved notes and course applications (1)'))
 })
+
+test('reviews a ChatGPT map before saving answers to the Core', async () => {
+  render(<Nexus />)
+  fireEvent.click(screen.getByRole('link', { name: 'VISIONS Core' }))
+  const answer = await screen.findByRole('textbox', { name: 'Theosis — Mind' })
+  fireEvent.change(answer, { target: { value: 'Keep a quiet evening.' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Save Vision' }))
+  await screen.findByText('1 of 21 prompts saved')
+
+  const guide = screen.getByText('Use ChatGPT', { selector: 'summary' }).parentElement as HTMLDetailsElement
+  guide.open = true
+  const json = within(guide).getByRole('textbox', { name: 'Codex map from ChatGPT' })
+  fireEvent.change(json, { target: { value: JSON.stringify({
+    format: 'visions-codex-v1', answers: {
+      vision: { lifestyle: 'Read for ten minutes before bed.' },
+      interest: { business: 'Practice a craft each morning.', relationships: 'Share an evening meal.' },
+    },
+  }) } })
+  fireEvent.click(within(guide).getByRole('button', { name: 'Review map' }))
+  assert.ok(within(guide).getByRole('heading', { name: 'Review 3 answers' }))
+  assert.ok(within(guide).getByText('Keep a quiet evening.'))
+  const save = within(guide).getByRole<HTMLButtonElement>('button', { name: 'Save map to Core' })
+  assert.equal(save.disabled, true)
+  assert.equal((answer as HTMLTextAreaElement).value, 'Keep a quiet evening.')
+  fireEvent.click(within(guide).getByRole('checkbox', { name: /replace 1 saved answer/i }))
+  fireEvent.click(save)
+  await within(guide).findByText('Map saved. Your workspace documents have been updated.')
+  assert.equal((answer as HTMLTextAreaElement).value, 'Read for ten minutes before bed.')
+  fireEvent.click(screen.getByRole('link', { name: 'Business' }))
+  assert.ok(within(screen.getByRole('region', { name: 'Business Plan' })).getByText('Practice a craft each morning.'))
+  fireEvent.click(screen.getByRole('link', { name: 'Relationships' }))
+  assert.ok(within(screen.getByRole('region', { name: 'Relationship Management' })).getByText('Share an evening meal.'))
+})

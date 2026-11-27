@@ -33,6 +33,15 @@ Existing Core answers and course notes use the same database and browser storage
 
 Each workspace contains its related lessons. Enrolled learners can read hosted materials, save answers and apply selected responses in the Core. A copy keeps its source ID. Editing a lesson response leaves any previously applied copy unchanged until the learner applies it again. See the [course publishing and enrollment guide](docs/course-import.md).
 
+## Walk through the Codex in ChatGPT
+
+1. Create a private ChatGPT Project named **VISIONS Reality Codex**.
+2. In Project settings, paste the [guide instructions](public/visions-chatgpt-instructions.txt). Add the [workbook PDF](public/visions-user-guide.pdf) as a project source.
+3. Start a chat with **Open the Codex**. Choose guidance to move through one question at a time, then ask ChatGPT to export your map for VISIONS.
+4. In the app, open **VISIONS Core → Use ChatGPT**. Paste the JSON, select **Review map**, and save the answers you reviewed. The three workspace documents update from those answers.
+
+Answers you enter in ChatGPT follow your ChatGPT data settings. For answers you want stored only in VISIONS, use the free workbook directly. Existing entries stay in the Core unless you explicitly approve a replacement shown in the preview. [ChatGPT Projects](https://help.openai.com/en/articles/10169521-projects-in-chatgpt)
+
 ## VISIONS AI
 
 Under **Reflect with VISIONS AI**, one request uses the complete method. The user controls the submitted intention and up to three selected source passages. Configure server-only `OPENAI_API_KEY` and `OPENAI_MODEL` to enable it for AI or concierge enrollments. The account store enforces one run per calendar minute. Provider calls have a 45-second deadline. The source library is available in the same panel.

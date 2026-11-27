@@ -6,7 +6,7 @@ test('Core requests one holistic reflection across all seven movements and three
   let calls = 0
   const result = await reflectWithCore('Balance work and rest', async input => {
     calls++
-    assert.match(input.instructions, /Vision[\s\S]*Integration[\s\S]*Story[\s\S]*Insight[\s\S]*Outcome[\s\S]*Negation[\s\S]*System/)
+    assert.match(input.instructions, /Vision[\s\S]*Interest[\s\S]*Story[\s\S]*Insight[\s\S]*Outcome[\s\S]*Negation[\s\S]*Systemization/)
     assert.match(input.instructions, /Theosis \(Lifestyle\).*Creativity \(Business\).*Psychology \(Relationships\)/)
     assert.deepEqual(JSON.parse(input.prompt), { intention: 'Balance work and rest' })
     return 'Reflection'

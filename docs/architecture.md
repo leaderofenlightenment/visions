@@ -17,6 +17,8 @@ Production target is a private GitHub repository, Vercel and Supabase with separ
 
 The Core is the VISIONS Reality Codex. It shows seven movements in order, each with one writing prompt for Theosis, Creativity, and Psychology. The catalog uses the titles and text from the supplied Codex. A movement saves its three edited answers together through the existing owner-scoped, revisioned framework store. Prompt slots keep their domain and movement IDs for compatibility with earlier answers and links.
 
+The optional ChatGPT Project guide offers one question per movement. Learners can bring back an answer-only JSON map through the Core. The browser checks the movement keys and text lengths, previews new and replacement answers, and saves only after confirmation. Interest and Systemization keep the existing internal IDs to preserve saved answers. The workbook does not send data to ChatGPT.
+
 Lifestyle, Business, and Relationships build documents from the relevant answers and surface the corresponding Master Creator materials, bonuses, and personal tools. Course copies keep their original material and prompt identifiers. The dashboard's 3D view remains the door to the Core.
 
 Optional VISIONS AI uses a single bounded Responses API call. The server adds the Codex movement names, the user's submitted intention, and any selected licensed passages. It does not query private framework or personal workspace records.

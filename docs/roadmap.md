@@ -3,7 +3,8 @@
 - [x] Inspect workspace and design reference
 - [x] Establish architecture, design system and data model
 - [x] Phase 01 implementation · Nexus shell, procedural graph, seven agent workspaces, knowledge and outputs, command palette and responsive settings
-- [x] Desktop browser QA · build a framework, see the branches, and follow an idea connection.
+- [x] Rebuild the Nexus around the Core and three integrated workspaces.
+- [x] Move the Master Creator systems, bonuses, and Digital Marketing Toolkit into their corresponding workspaces.
 - [ ] Manual narrow-screen and assistive-technology QA.
 - [ ] Phase 02 · Auth, owner-scoped persistence, habits, calendar, journals, relationships and projects
 - [ ] Phase 03 · Reasoning adapters, scoped retrieval, bounded workflows, runtime event visualization, usage and cost
@@ -25,7 +26,7 @@
 
 ### Phase 03 status
 
-- [x] Configurable server-side Core reflection across seven lenses and three life domains
+- [x] Configurable server-side Core reflection across seven Codex movements and three content domains
 - [x] Authentication, consent, request deadline, and a database-backed rate limit
 - [ ] Verify sign-in and live provider calls against configured services
 - [ ] Persist resumable workflows and conversations, source retrieval, usage, approvals, and event-driven network highlights
@@ -38,7 +39,9 @@
 
 ### Phase 05 direction
 
-- [x] The Business workspace applies the full framework to creating, alongside the other life domains.
+- [x] Consolidate the Business Plan, Career Creation Clarity, The Vortex Funnel, Digital Marketing Toolkit, and Eden into one process.
+- [x] Add approved business draft export to the learner’s Eden Library.
+- [ ] Agree Eden bundle terms and implement payment-linked access. [Eden fulfillment](eden.md)
 - [ ] Specialized article drafting, editorial review, media tools, and publishing remain deferred.
 
 ### Phase 06 status

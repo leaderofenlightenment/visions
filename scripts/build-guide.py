@@ -22,7 +22,8 @@ P = 44
 INK = '#201633'
 MUTED = '#514563'
 PAPER = '#fbf9ff'
-ACCENT = { 'lifestyle': '#25573f', 'business': '#7f402a', 'relationships': '#663877' }
+TOPICS = {'lifestyle': 'Theosis', 'business': 'Creativity', 'relationships': 'Psychology'}
+PAGE_COUNT = len(CATALOG['movements']) + 2
 LENS_COLORS = ['#8b6100', '#8a460d', '#763484', '#17628b', '#25573f', '#912f3a', '#364da0']
 system_fonts = Path('/usr/share/fonts/truetype/liberation')
 bundled_fonts = Path(reportlab.__file__).resolve().parent / 'fonts'
@@ -69,7 +70,7 @@ def begin(page, kicker, heading, subtitle):
     paragraph('THE MASTER CREATOR  /  VISIONS USER MANUAL', P, 35, size=8, color=MUTED)
     pdf.setFillColor(HexColor(MUTED))
     pdf.setFont('GuideSans', 8)
-    pdf.drawRightString(W - P, 28, f'{page} / 5')
+    pdf.drawRightString(W - P, 28, f'{page} / {PAGE_COUNT}')
     return H - 211
 
 
@@ -88,44 +89,42 @@ def note(top, label, body):
     return paragraph(body, P, end - 5, size=10, leading=14, color=MUTED) - 15
 
 
-y = begin(1, 'Start here', 'A practical guide to VISIONS',
-          'A free, guided framework for Lifestyle, Business, and Relationships.')
-y = section(y, '01', 'Fill in the framework',
-            'Open Guided Framework from the Nexus. Start with Lifestyle, then work through Business and Relationships. Each domain has seven prompts. Save a domain before leaving the page. You can return to finish the other prompts later.')
-y = section(y, '02', 'See what you saved in the network',
-            'Return to Dashboard and open the central VISIONS Core. Each saved answer appears under its lens and domain. Use the framework grid to inspect connected ideas. Open Agents from the sidebar to explore individual lenses.')
-y = section(y, '03', 'Use your three domain documents',
-            'Open Lifestyle, Business, or Relationships in the sidebar. Each document gathers your saved framework answers and course applications. Edit an answer from Guided Framework to update it everywhere. Download a document to keep a copy.')
-y = note(y - 6, 'One way to start',
-         'In Lifestyle, describe an evening rhythm under Vision of Theosis. Save it. Then consider how the same rhythm changes the time available for your work and the people you live with.')
-y = note(y, 'Your answers belong to you',
-     'Use your signed-in workspace for private entries. You can also start with non-sensitive notes stored on this device. Your browser and account workspaces are separate. Theosis belongs to the sacramental and theological life of the Orthodox Church. Use pastoral guidance for personal spiritual questions.')
-note(y, 'Read across domains',
-     'Health connects Mind, Asceticism, and Self-Mastery. Wealth connects Body, Skillset, and Household Dynamics. Relationships connect Soul, Community, and Ministry. Compare the answers you save under the same lens.')
+y = begin(1, 'Start here', 'VISIONS Reality Codex',
+          'How to use the VISIONS Core and carry your answers into everyday life.')
+y = section(y, '01', 'Open the Core',
+            'Select VISIONS Core from the sidebar or the center of the Nexus. Work through Vision, Integration, Story, Insight, Outcome, Negation, and System in order.')
+y = section(y, '02', 'Save each movement across three topics',
+            'Each movement gives you one prompt for Theosis, one for Creativity, and one for Psychology. Save your answers before leaving the Core. You can return at any time and revise them.')
+y = section(y, '03', 'Use your documents',
+            'Open Lifestyle for your Rule of Life, Business for your Business Plan, and Relationships for your Relationship Management document. Each one updates from your saved Core answers and can be downloaded.')
+y = note(y - 6, 'Read across content domains',
+         'Health runs through Mind, Asceticism, and Self-Mastery. Wealth runs through Body, Skillset, and Household Dynamics. Relationships run through Soul, Community, and Ministry.')
+note(y, 'Your answers belong to you',
+     'Use your signed-in workspace for private entries. Your browser and account workspaces are separate. Theosis belongs to the sacramental and theological life of the Orthodox Church. Use pastoral guidance for personal spiritual questions.')
 pdf.showPage()
 
-for page, domain in enumerate(CATALOG, start=2):
-    name = domain['id'].title()
-    y = begin(page, name, domain['title'], 'Sub-pillars: ' + '  /  '.join(domain['pillars']))
-    for i, (lens, title, pillar, prompt) in enumerate(domain['prompts']):
-        y = section(y, 'VISIONS'[i], title + '  /  ' + pillar, prompt, LENS_COLORS[i])
+for index, movement in enumerate(CATALOG['movements']):
+    y = begin(index + 2, movement['name'], movement['title'], 'Answer these three prompts in the VISIONS Core.')
+    y = paragraph(movement['reading'], P, y, size=10, leading=14, color=MUTED) - 20
+    for domain, field in movement['prompts'].items():
+        y = section(y, 'VISIONS'[index], TOPICS[domain] + ' — ' + field['pillar'], field['prompt'], LENS_COLORS[index])
     if y < 64:
-        raise RuntimeError('Workbook page overflow: ' + name)
+        raise RuntimeError('Workbook page overflow: ' + movement['name'])
     pdf.showPage()
 
-y = begin(5, 'Course and access', 'From learning to practice',
-          'Save what you learn, then choose what belongs in your Core.')
-y = section(y, '01', 'Read the course in VISIONS',
-            'Open Course and choose Read in VISIONS. The Master Creator course requires enrollment. Type in the response spaces you encounter in a lesson and choose Save answer to return to that answer later.')
-y = section(y, '02', 'Send a chosen answer to your Core',
-            'Choose Add answer to VISIONS Core, check the lens and life domains, and save the idea. The course keeps the original response. The network and domain document show the version you confirm for the Core.')
-y = note(y, 'Free · VISIONS Framework', 'All 21 prompts, the network, and three personal documents.')
-y = note(y, '$33 · The Master Creator', 'Course materials, worksheet answers, and applications in your Core.')
-y = note(y, '$333 · VISIONS AI', 'Course access plus AI support for content drafts, lifestyle planning, and relationship reflection. Provider configuration is required.')
-y = note(y, '$3,333 · Work with Eric',
-         'Personal support for music, content, and thumbnails, lifestyle coaching, and relationship discernment. Marital advice is outside the offer.')
-note(y, 'Access and privacy',
-     'Paid access is arranged with the owner. The app has no online checkout. AI uses the intention and source passages you explicitly choose to share.')
+y = begin(PAGE_COUNT, 'Workspaces and access', 'Put your answers to work',
+          'Open The Master Creator materials inside the matching workspace.')
+y = section(y, '01', 'Lifestyle',
+            'Apply the Sacramental Lifestyle Worksheet and Modern Monastic bonus alongside your Rule of Life.')
+y = section(y, '02', 'Business',
+            'Use your Business Plan and Career Creation Clarity to define your work. Build your offer with The Vortex Funnel, then use the Digital Marketing Toolkit and Eden for content research, creation, and scheduling.')
+y = section(y, '03', 'Relationships',
+            'Use Interpersonal Dynamic Articulation and Threefold Partner Identification alongside your Relationship Management document.')
+y = note(y, 'Bring a course answer into the Core',
+         'Save your response in the material, then choose Add answer to VISIONS Core to review the movement and workspaces before saving a copy.')
+y = note(y, 'Access and privacy',
+         'VISIONS Core is free. Paid access to The Master Creator, VISIONS AI, and Work with Eric is arranged with the owner. Eden access is separate. The app sends only the business draft you explicitly approve to your Eden Library.')
+note(y, 'Return to the method', CATALOG['closing'])
 pdf.showPage()
 pdf.save()
 print(TARGET)

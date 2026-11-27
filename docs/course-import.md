@@ -48,9 +48,7 @@ need a corresponding lens and life-domain mapping.
 The snapshot renders linked database resources as templates using their
 field definitions. It does not import live rows, contacts, financial
 records, or CRM data from the source workspace. Learners can create their
-own applications in the framework. External Kortex and Eden bonuses are
-linked resources until their original files or text can be supplied for
-native import.
+own applications in the framework. Modern Monastic is available as an attachment. The Vortex Funnel and Threefold Partner Identification open their original linked documents without affiliate tracking. Bring in their original files or text to host them natively. The reader omits outbound promotional links in the Digital Marketing Toolkit and its related materials.
 
 ## Enroll learners
 
@@ -63,7 +61,7 @@ values ('REPLACE-WITH-AUTH-USER-UUID')
 on conflict (user_id) do nothing;
 ```
 
-Give learners the app's Course URL and their VISIONS sign-in instructions.
+Give learners the app URL and their VISIONS sign-in instructions. They can find their materials in Lifestyle, Business, and Relationships.
 Test with two accounts. The enrolled account should open an imported lesson
 and private attachment. The other should be blocked even when it knows the
 lesson or attachment URL. To revoke enrollment, remove the corresponding

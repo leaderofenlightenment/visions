@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const db = await supabaseServer()
   if (!db) return reply({ error: 'Set up Supabase to use the source library.' }, 503)
   const { data: auth } = await db.auth.getUser()
-  if (!auth.user) return reply({ error: 'Sign in from Lifestyle, Relationships, or Projects to view sources.' }, 401)
+  if (!auth.user) return reply({ error: 'Sign in from Account and settings to view sources.' }, 401)
   const query = new URL(request.url).searchParams
   const term = (query.get('q') ?? '').trim().slice(0, 100)
   const offset = Number(query.get('offset') ?? '0')

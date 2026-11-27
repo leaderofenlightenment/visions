@@ -3,20 +3,19 @@
 import { useState, type CSSProperties, type FormEvent } from 'react'
 import { Crosshair, Link2, Plus } from 'lucide-react'
 import { agents, modules, type AgentId, type ModuleId } from '@/lib/codex'
-import { frameworkSummary, ideaLimit, lensQuestions, removeIdea, type Framework, type Idea } from '@/lib/framework'
+import { ideaLimit, lensQuestions, removeIdea, type Framework, type Idea } from '@/lib/framework'
 import { courseMaterial, type CourseMaterial } from '@/lib/course'
 import { frameworkConnections, guideAnswerLimit } from '@/lib/guided'
 import type { CourseApplication } from './course-answer'
-import { LensNetwork } from './lens-network'
 import type { FrameworkStore } from './use-framework'
 
-type Props = { store: FrameworkStore; lens?: AgentId; domain?: ModuleId; course?: CourseMaterial; application?: CourseApplication; onReadCourse: (id: string) => void; onOpenGuide?: (domain?: ModuleId) => void }
+type Props = { store: FrameworkStore; notesOnly?: boolean; course?: CourseMaterial; application?: CourseApplication; onReadCourse: (id: string) => void }
 type Draft = { lens: AgentId; domains: ModuleId[]; idea?: Idea; course?: CourseMaterial; application?: CourseApplication }
 
-export function FrameworkWorkspace({ store, lens, domain, course, application, onReadCourse, onOpenGuide }: Props) {
+export function FrameworkWorkspace({ store, notesOnly, course, application, onReadCourse }: Props) {
   const { graph } = store
-  const [filterLens, setFilterLens] = useState<AgentId | ''>(lens ?? '')
-  const [filterDomain, setFilterDomain] = useState<ModuleId | ''>(domain ?? '')
+  const [filterLens, setFilterLens] = useState<AgentId | ''>('')
+  const [filterDomain, setFilterDomain] = useState<ModuleId | ''>('')
   const [draft, setDraft] = useState<Draft | null>(() => {
     if (!course) return null
     const existing = application ? graph.ideas.find(idea => idea.courseId === course.id && idea.coursePromptId === application.promptId) : undefined
@@ -27,10 +26,10 @@ export function FrameworkWorkspace({ store, lens, domain, course, application, o
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState('')
-  const summary = frameworkSummary(graph)
   const current = graph.ideas.find(idea => idea.id === selected)
   const visible = graph.ideas.filter(idea => (!filterLens || idea.lens === filterLens)
-    && (!filterDomain || idea.domains.includes(filterDomain)) && (!course || idea.courseId === course.id))
+    && (!filterDomain || idea.domains.includes(filterDomain)) && (!course || idea.courseId === course.id)
+    && (!notesOnly || !idea.guideDomain))
   const networkEdges = frameworkConnections(graph)
   const linked = (id: string, edges = networkEdges) => graph.ideas.filter(idea => edges.some(edge => edge.includes(id) && edge.includes(idea.id) && idea.id !== id))
 
@@ -85,7 +84,7 @@ export function FrameworkWorkspace({ store, lens, domain, course, application, o
 
   if (store.mode === 'loading') return <p role="status">Opening your VISIONS framework…</p>
   if (store.mode === 'failed') return <div><p role="alert">{store.error}</p><button className="secondary-button" onClick={store.reload}>Retry</button></div>
-  if (store.mode === 'signed-out') return <p className="muted">Sign in from Lifestyle, Relationships, or Projects to open your private framework.</p>
+  if (store.mode === 'signed-out') return <p className="muted">Sign in from Account and settings to open your private framework.</p>
 
   return <section className="framework-workspace" aria-label="VISIONS framework">
     <div className="framework-summary">
@@ -94,40 +93,15 @@ export function FrameworkWorkspace({ store, lens, domain, course, application, o
     </div>
     {store.mode === 'device' && <p className="muted">Use non-sensitive ideas in this browser workspace. Account data is stored separately when Supabase is configured.</p>}
     {course && <p><button className="secondary-button" onClick={() => onReadCourse(course.id)}>Read this material</button></p>}
-    {!lens && !domain && !course && <>
-      <p>Start with a value, question, or practice. Apply any of the seven VISIONS lenses to one or more life domains, then connect related ideas.</p>
-      <div className="framework-matrix-wrap">
-        <table className="framework-matrix">
-          <caption>Framework ideas by lens and life domain</caption>
-          <thead><tr><th scope="col">Lens</th>{modules.map(module => <th scope="col" key={module.id} style={{ color: module.color }}>{module.name}</th>)}</tr></thead>
-          <tbody>{summary.map(({ lens, domains }) => <tr key={lens.id}>
-            <th scope="row" style={{ color: lens.color }}>{lens.name}</th>
-            {domains.map(module => <td key={module.id}>
-              <button type="button" className="secondary-button"
-                aria-label={`${lens.name} in ${module.name}: ${module.count} ${module.count === 1 ? 'idea' : 'ideas'}`}
-                aria-pressed={filterLens === lens.id && filterDomain === module.id}
-                onClick={() => {
-                  setFilterLens(lens.id)
-                  setFilterDomain(module.id)
-                  setSelected('')
-                  if (!module.count && graph.ideas.length < ideaLimit) startDraft(lens.id, [module.id])
-                  else setDraft(null)
-                }}>{module.count || <Plus size={13}/>}</button>
-            </td>)}
-          </tr>)}</tbody>
-        </table>
-      </div>
-    </>}
-    {lens && <p>{lensQuestions[lens]}</p>}
     <div className="personal-actions framework-filters">
-      {!lens && <label>Lens <select value={filterLens} onChange={event => { setFilterLens(event.target.value as AgentId | ''); setSelected('') }}>
-        <option value="">All lenses</option>{agents.map(agent => <option value={agent.id} key={agent.id}>{agent.name}</option>)}
-      </select></label>}
-      {!domain && <label>Life domain <select value={filterDomain} onChange={event => { setFilterDomain(event.target.value as ModuleId | ''); setSelected('') }}>
+      <label>Movement <select value={filterLens} onChange={event => { setFilterLens(event.target.value as AgentId | ''); setSelected('') }}>
+        <option value="">All movements</option>{agents.map(agent => <option value={agent.id} key={agent.id}>{agent.name}</option>)}
+      </select></label>
+      <label>Workspace <select value={filterDomain} onChange={event => { setFilterDomain(event.target.value as ModuleId | ''); setSelected('') }}>
         <option value="">All domains</option>{modules.map(module => <option value={module.id} key={module.id}>{module.name}</option>)}
-      </select></label>}
+      </select></label>
       <button className="primary-button" disabled={busy || graph.ideas.length >= ideaLimit} onClick={() => startDraft()}><Plus size={14}/> Add idea</button>
-      {!lens && !domain && graph.ideas.length > 0 && <button className="secondary-button" onClick={exportFramework}>Export framework</button>}
+      {notesOnly && graph.ideas.length > 0 && <button className="secondary-button" onClick={exportFramework}>Export framework</button>}
       {store.mode === 'account' && <button className="secondary-button" disabled={busy} onClick={store.reload}>Reload framework</button>}
     </div>
     {graph.ideas.length >= ideaLimit && <p className="muted">This framework has reached its 80-idea limit.</p>}
@@ -137,8 +111,6 @@ export function FrameworkWorkspace({ store, lens, domain, course, application, o
       connected={draft.idea ? linked(draft.idea.id, graph.connections).map(idea => idea.id) : draft.course
         ? graph.ideas.filter(idea => idea.courseId && (idea.courseId === draft.course?.id || idea.courseId === draft.course?.parent || courseMaterial(idea.courseId)?.parent === draft.course?.id))
           .slice(0, Math.max(0, 160 - graph.connections.length)).map(idea => idea.id) : []} onSave={saveIdea} onCancel={() => { setDraft(null); setError('') }}/>}
-    {filterLens && visible.length > 0 && <LensNetwork ideas={visible} connections={networkEdges}
-      selected={selected} onSelect={id => { setSelected(id); setConfirm('') }}/>}
     {!visible.length && !draft && <p className="muted">No ideas in this view yet.</p>}
     <ul className="framework-ideas">
       {visible.map(idea => <li key={idea.id}>
@@ -157,15 +129,12 @@ export function FrameworkWorkspace({ store, lens, domain, course, application, o
       {current.detail && <p>{current.detail}</p>}
       {linked(current.id).length > 0 && <div className="framework-linked">
         <h4>Connected ideas</h4>
-        {linked(current.id).map(idea => <button className="secondary-button" key={idea.id} onClick={() => { setSelected(idea.id); setConfirm('') }}>
+        {linked(current.id).map(idea => idea.guideDomain ? <span key={idea.id} className="linked-answer">{idea.title}</span> : <button className="secondary-button" key={idea.id} onClick={() => { setSelected(idea.id); setConfirm('') }}>
           <Link2 size={13}/> {idea.title} · {agents.find(agent => agent.id === idea.lens)?.name}
         </button>)}
       </div>}
       <div className="personal-actions">
-        {current.guideDomain ? <a className="secondary-button" href="#guide" onClick={event => {
-          event.preventDefault()
-          onOpenGuide?.(current.guideDomain)
-        }}>Edit in guided framework</a> : <button className="secondary-button" disabled={busy} onClick={() => setDraft({ lens: current.lens, domains: current.domains, idea: current })}>Edit idea</button>}
+        <button className="secondary-button" disabled={busy} onClick={() => setDraft({ lens: current.lens, domains: current.domains, idea: current })}>Edit idea</button>
         {confirm !== current.id ? <button className="secondary-button" disabled={busy} onClick={() => setConfirm(current.id)}>Remove idea</button> : <>
           <button className="secondary-button" disabled={busy} onClick={async () => {
             if (await commit(removeIdea(graph, current.id), 'Idea and its connections removed.')) {
@@ -193,7 +162,7 @@ function IdeaForm({ draft, graph, busy, connected, onSave, onCancel }: {
 
   return <form className="personal-form framework-form" onSubmit={onSave}>
     <h3>{draft.idea ? 'Edit framework idea' : 'Add framework idea'}</h3>
-    <label>VISIONS lens <select name="lens" value={lens} onChange={event => setLens(event.target.value as AgentId)}>
+    <label>VISIONS movement <select name="lens" value={lens} onChange={event => setLens(event.target.value as AgentId)}>
       {agents.map(agent => <option value={agent.id} key={agent.id}>{agent.name}</option>)}
     </select></label>
     <label>Idea title <input name="title" autoComplete="off" maxLength={100} required defaultValue={draft.idea?.title ?? (draft.application ? (draft.course?.title.replace(/^\d+\. /, '').slice(0, 70) ?? '') + ' · ' + draft.application.title : undefined)}/></label>

@@ -39,171 +39,131 @@ afterEach(() => {
 })
 after(() => window.close())
 
-test('opens the keyboard palette, finds a lens, then returns focus to the launcher', async () => {
+test('opens the keyboard palette, finds the Core, and restores focus when closed', () => {
   render(<Nexus />)
-  const opener = screen.getByRole('button', { name: 'Open command palette' })
+  const opener = screen.getByRole('button', { name: 'Find workspace' })
   opener.focus()
   fireEvent.keyDown(opener, { key: 'k', ctrlKey: true })
-  const search = screen.getByRole('textbox', { name: /search workspaces/i })
+  const search = screen.getByRole('textbox', { name: 'Search workspaces' })
   assert.equal(document.activeElement, search)
-  fireEvent.change(search, { target: { value: 'discernment engine' } })
-  const result = within(screen.getByRole('dialog')).getByRole('button', { name: /Negation/ })
-  fireEvent.keyDown(search, { key: 'ArrowDown' })
-  assert.equal(document.activeElement, result)
-  fireEvent.click(result)
-  assert.ok(screen.getByRole('dialog', { name: 'Negation' }))
-  await screen.findByRole('region', { name: 'VISIONS framework' })
-  assert.ok(screen.getByText(/what might you need to question/i))
+  fireEvent.change(search, { target: { value: 'Codex' } })
+  assert.ok(within(screen.getByRole('dialog')).getByRole('button', { name: 'VISIONS Core' }))
   fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }))
   assert.equal(document.activeElement, opener)
 })
 
-test('saves a workflow intention, restores it on remount, and deletes it', () => {
-  const view = render(<Nexus />)
-  fireEvent.click(screen.getByRole('button', { name: 'Plan multi-agent workflow' }))
-  const intention = screen.getByRole('textbox', { name: 'Task intention' })
-  fireEvent.change(intention, { target: { value: 'Serve others through work without crowding out family time' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Save local draft' }))
-  const project = screen.getByRole('article')
-  assert.ok(within(project).getByText('Serve others through work without crowding out family time'))
-  assert.ok(within(project).getByText('Negation'))
-  view.unmount()
-
+test('uses the centered Core as the only network control and shows the Codex content domains', async () => {
   render(<Nexus />)
-  assert.ok(screen.getByRole('heading', { name: 'Serve others through work without crowding out family time' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Delete draft' }))
-  assert.equal(screen.queryByRole('article'), null)
+  const network = within(screen.getByRole('region', { name: 'VISIONS neural network' }))
+  assert.equal(network.getAllByRole('button').length, 1)
+  const domains = within(screen.getByRole('region', { name: 'Content domains' }))
+  assert.ok(domains.getByText('Mind · Body · Soul'))
+  assert.ok(domains.getByText('Asceticism · Skillset · Community'))
+  assert.ok(domains.getByText('Self-Mastery · Household Dynamics · Ministry'))
+
+  fireEvent.click(network.getByRole('button', { name: 'VISIONS Core' }))
+  const method = within(await screen.findByRole('region', { name: 'VISIONS method' }))
+  assert.ok(method.getByRole('heading', { name: 'The Horizon of Dominion' }))
+  assert.equal(screen.queryByRole('link', { name: 'Guided Framework' }), null)
+  assert.equal(screen.queryByRole('link', { name: 'Reality Codex' }), null)
+  assert.equal(screen.queryByRole('link', { name: 'Agents' }), null)
 })
 
-test('toggles module visibility and changes the reduced motion preference', () => {
+test('persists the reduced motion preference', () => {
   const { container } = render(<Nexus />)
-  fireEvent.click(screen.getByRole('switch', { name: 'Lifestyle' }))
-  assert.equal(screen.queryByRole('button', { name: /Being Lifestyle/ }), null)
-  assert.ok(screen.getByRole('link', { name: 'Lifestyle' }))
-  fireEvent.click(screen.getByRole('link', { name: 'Settings' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Find workspace' }))
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Settings' }))
   fireEvent.click(screen.getByRole('checkbox', { name: /Reduce motion/ }))
   assert.ok(container.querySelector('.app-shell.reduced-motion'))
 })
 
-test('uses the centered Core as the only network control', () => {
-  render(<Nexus />)
-  const network = within(screen.getByRole('region', { name: 'VISIONS neural network' }))
-  assert.equal(network.getAllByRole('button').length, 1)
-  fireEvent.click(network.getByRole('button', { name: 'VISIONS Core' }))
-  assert.ok(screen.getByRole('dialog', { name: 'VISIONS Core' }))
-})
-
-test('adds connected framework ideas and returns to them through the Core', async () => {
+test('saves one VISIONS movement and populates all three documents', async () => {
   const view = render(<Nexus />)
-  fireEvent.click(screen.getByRole('button', { name: 'VISIONS Core' }))
-  const dialog = within(screen.getByRole('dialog', { name: 'VISIONS Core' }))
-  await dialog.findByRole('table')
-  fireEvent.click(dialog.getByRole('button', { name: 'Vision in Lifestyle: 0 ideas' }))
-  fireEvent.change(dialog.getByRole('textbox', { name: 'Idea title' }), { target: { value: 'Protected rest' } })
-  fireEvent.click(dialog.getByRole('checkbox', { name: 'Business' }))
-  fireEvent.click(dialog.getByRole('button', { name: 'Save idea' }))
-  await dialog.findByRole('heading', { name: 'Protected rest' })
-  fireEvent.click(dialog.getByRole('button', { name: 'Integration in Relationships: 0 ideas' }))
-  fireEvent.change(dialog.getByRole('textbox', { name: 'Idea title' }), { target: { value: 'Shared evening rhythm' } })
-  fireEvent.click(dialog.getByRole('checkbox', { name: 'Protected rest · Vision' }))
-  fireEvent.click(dialog.getByRole('button', { name: 'Save idea' }))
-  await dialog.findByRole('heading', { name: 'Shared evening rhythm' })
-  assert.ok(dialog.getByRole('button', { name: 'Protected rest · Vision' }))
-  fireEvent.click(dialog.getByRole('button', { name: 'Close dialog' }))
+  fireEvent.click(screen.getByRole('link', { name: 'VISIONS Core' }))
+  const life = await screen.findByRole('textbox', { name: 'Theosis — Mind' })
+  assert.match(life.getAttribute('aria-describedby') ?? '', /guide-vision-lifestyle/)
+  const entries = [
+    ['Theosis — Mind', 'Close work at sundown and leave space for prayer.'],
+    ['Creativity — Asceticism', 'Protect mornings for writing.'],
+    ['Psychology — Self-Mastery', 'Call my brother on Fridays.'],
+  ] as const
+  for (const [name, value] of entries) fireEvent.change(screen.getByRole('textbox', { name }), { target: { value } })
+  fireEvent.click(screen.getByRole('button', { name: 'Save Vision' }))
+  await screen.findByText('3 of 21 prompts saved')
+  fireEvent.click(screen.getByRole('button', { name: 'Next movement' }))
+  assert.ok(screen.getByRole('heading', { name: 'The Stewardship of the Vessel' }))
+  assert.ok(screen.getByRole('textbox', { name: 'Psychology — Household Dynamics' }))
+
+  for (const [index, [workspace, name]] of [['Lifestyle', 'Rule of Life'], ['Business', 'Business Plan'], ['Relationships', 'Relationship Management']].entries()) {
+    fireEvent.click(screen.getByRole('link', { name: workspace }))
+    assert.ok(within(screen.getByRole('region', { name })).getByText(entries[index][1]))
+  }
   view.unmount()
   render(<Nexus />)
-  fireEvent.click(screen.getByRole('button', { name: 'VISIONS Core' }))
-  const reopened = within(screen.getByRole('dialog', { name: 'VISIONS Core' }))
-  const relationships = await reopened.findByRole('button', { name: 'Integration in Relationships: 1 idea' })
-  fireEvent.click(relationships)
-  assert.ok(reopened.getByRole('button', { name: 'Explore Shared evening rhythm' }))
+  fireEvent.click(screen.getByRole('link', { name: 'VISIONS Core' }))
+  const loaded = await screen.findByRole('textbox', { name: 'Creativity — Asceticism' })
+  assert.equal((loaded as HTMLTextAreaElement).value, entries[1][1])
 })
 
-test('applies a course system and makes it available in the Core', async () => {
+test('keeps each system and bonus in its workspace and brings the toolkit into the business process', () => {
   render(<Nexus />)
-  fireEvent.click(screen.getByRole('button', { name: 'Explore course' }))
-  fireEvent.change(screen.getByRole('textbox', { name: 'Find course material' }), { target: { value: 'Sacramental Lifestyle Worksheet' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Apply in VISIONS' }))
-  const dialog = within(screen.getByRole('dialog', { name: 'Sacramental Lifestyle Worksheet' }))
-  const title = await dialog.findByRole('textbox', { name: 'Idea title' })
-  assert.ok((dialog.getByRole('checkbox', { name: 'Lifestyle' }) as HTMLInputElement).checked)
-  fireEvent.change(title, { target: { value: 'Make space for family rest' } })
-  fireEvent.click(dialog.getByRole('button', { name: 'Save idea' }))
-  await dialog.findByRole('heading', { name: 'Make space for family rest' })
-  assert.ok(dialog.getByRole('button', { name: 'Sacramental Lifestyle Worksheet' }))
-  fireEvent.click(dialog.getByRole('button', { name: 'Close dialog' }))
-  fireEvent.click(screen.getByRole('link', { name: 'Dashboard' }))
-  fireEvent.click(screen.getByRole('button', { name: 'VISIONS Core' }))
-  assert.ok(await screen.findByRole('button', { name: 'System in Lifestyle: 1 idea' }))
-})
-
-test('keeps each domain course library in its own workspace when switching sections', () => {
-  render(<Nexus />)
-
-  const courseHeading = 'Apply the course to Relationships'
-  for (const destination of ['Lifestyle', 'Business', 'Course', 'Content Library', 'Settings', 'Dashboard']) {
-    fireEvent.click(screen.getByRole('link', { name: 'Relationships' }))
-    assert.equal(screen.getAllByRole('heading', { name: courseHeading }).length, 1)
-    assert.ok(screen.getByRole('heading', { name: 'Interpersonal Dynamic Articulation' }))
-    assert.ok(screen.getByRole('heading', { name: 'Private relationships' }))
-
-    fireEvent.click(screen.getByRole('link', { name: destination }))
-    assert.equal(screen.queryAllByRole('heading', { name: courseHeading }).length, 0, destination)
+  assert.equal(screen.queryByRole('link', { name: 'Course' }), null)
+  for (const [workspace, system, bonus] of [
+    ['Lifestyle', 'Sacramental Lifestyle Worksheet', 'Modern Monastic'],
+    ['Business', 'Career Creation Clarity', 'The Vortex Funnel'],
+    ['Relationships', 'Interpersonal Dynamic Articulation', 'Threefold Partner Identification'],
+    ['Business', 'Career Creation Clarity', 'The Vortex Funnel'],
+  ]) {
+    fireEvent.click(screen.getByRole('link', { name: workspace }))
+    assert.equal(screen.getAllByRole('button', { name: 'Read ' + system }).length, 1)
+    assert.equal(screen.getAllByRole('button', { name: 'Read ' + bonus }).length, 1)
+    assert.equal(screen.queryAllByRole('button', { name: 'Read Threefold Partner Identification' }).length, workspace === 'Relationships' ? 1 : 0)
   }
+  const process = within(screen.getByRole('list', { name: 'Creative business process' }))
+  assert.ok(process.getByRole('button', { name: 'Read Digital Marketing Toolkit' }))
+  assert.equal(process.getByRole('link', { name: 'Explore Eden' }).getAttribute('href'), 'https://eden.so/?via=eric44')
 })
 
-test('reads lesson content inside VISIONS and follows an internal course reference', async () => {
-  const fetchMock = globalThis.fetch as unknown as { mock: { mockImplementation(impl: (path: string) => Promise<Response>): void } }
-  fetchMock.mock.mockImplementation(async path => Response.json(
+function mockFetch(implementation: (path: string, init?: RequestInit) => Promise<Response>) {
+  const fetchMock = globalThis.fetch as unknown as { mock: { mockImplementation(impl: typeof implementation): void } }
+  fetchMock.mock.mockImplementation(implementation)
+}
+
+test('keeps internal course links and removes legacy marketing affiliate links', async () => {
+  mockFetch(async path => Response.json(
     path === '/api/framework' ? { mode: 'device' }
-      : path.endsWith('189776d8f6278108ac1cfffcbc4605e8') ? { markdown: '## A private exercise\n\n[Open related material](#course-material=181776d8f62780d39355eaf88309c3a4)' }
-      : { markdown: '## Related private exercise' },
+      : path.endsWith('189776d8f62781d98745d93187bca0c7') ? { markdown: '## Toolkit\n\n[Old promotion](https://partners.example.com/offer?via=old)\n\n[Open related worksheet](#course-material=181776d8f62780d39355eaf88309c3a4)' }
+      : { markdown: '## Related private worksheet' },
   ))
   render(<Nexus />)
-  fireEvent.click(screen.getByRole('button', { name: 'Explore course' }))
-  fireEvent.change(screen.getByRole('textbox', { name: 'Find course material' }), { target: { value: 'Sacramental Lifestyle Worksheet' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Read in VISIONS' }))
-  const reader = within(screen.getByRole('dialog', { name: 'Sacramental Lifestyle Worksheet' }))
-  await reader.findByRole('heading', { name: 'A private exercise' })
-  fireEvent.click(reader.getByRole('button', { name: 'Open related material' }))
+  fireEvent.click(screen.getByRole('link', { name: 'Business' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Read Digital Marketing Toolkit' }))
+  const reader = within(screen.getByRole('dialog', { name: 'Digital Marketing Toolkit' }))
+  await reader.findByRole('heading', { name: 'Toolkit' })
+  assert.equal(reader.queryByRole('link', { name: 'Old promotion' }), null)
+  fireEvent.click(reader.getByRole('button', { name: 'Open related worksheet' }))
   const related = within(screen.getByRole('dialog', { name: 'Vision Sculpting' }))
-  await related.findByRole('heading', { name: 'Related private exercise' })
-  assert.equal(screen.queryByRole('link', { name: /notion/i }), null)
-})
-
-test('saving the guided framework updates the Core and the corresponding document', async () => {
-  render(<Nexus />)
-  fireEvent.click(screen.getByRole('button', { name: 'Open guided framework' }))
-  const answer = await screen.findByRole('textbox', { name: /Vision of Theosis/ })
-  fireEvent.change(answer, { target: { value: 'Close work at sundown and leave space for prayer.' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Save Lifestyle to VISIONS' }))
-  await screen.findByText('1 of 21 prompts saved')
-  fireEvent.click(screen.getByRole('link', { name: 'Dashboard' }))
-  fireEvent.click(screen.getByRole('button', { name: 'VISIONS Core' }))
-  assert.ok(await screen.findByRole('button', { name: 'Vision in Lifestyle: 1 idea' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }))
-  fireEvent.click(screen.getByRole('link', { name: 'Lifestyle' }))
-  assert.ok(screen.getByRole('heading', { name: 'The Theosis Framework document' }))
-  assert.ok(screen.getByText('Close work at sundown and leave space for prayer.'))
+  await related.findByRole('heading', { name: 'Related private worksheet' })
 })
 
 test('saves a private course answer then applies a copy with its source to the Core', async () => {
   const promptId = 'b'.repeat(24)
   const payloads: unknown[] = []
-  const fetchMock = globalThis.fetch as unknown as { mock: { mockImplementation(impl: (path: string, init?: RequestInit) => Promise<Response>): void } }
-  fetchMock.mock.mockImplementation(async (path, init) => {
+  mockFetch(async (path, init) => {
     if (path === '/api/framework') return Response.json({ mode: 'device' })
-    if (init?.method === 'POST') {
-      const result = JSON.parse(String(init.body))
-      payloads.push(result)
-      return Response.json(result)
+    if (path === '/api/course/189776d8f6278108ac1cfffcbc4605e8') {
+      if (init?.method === 'POST') {
+        const result = JSON.parse(String(init.body))
+        payloads.push(result)
+        return Response.json(result)
+      }
+      return Response.json({ parts: [{ markdown: '## Name a rhythm', prompt: { id: promptId, number: 1 } }], answers: [] })
     }
-    return Response.json({ parts: [{ markdown: '## Name a rhythm', prompt: { id: promptId, number: 1 } }], answers: [] })
+    return Response.json({ configured: false, signedIn: false })
   })
   render(<Nexus />)
-  fireEvent.click(screen.getByRole('button', { name: 'Explore course' }))
-  fireEvent.change(screen.getByRole('textbox', { name: 'Find course material' }), { target: { value: 'Sacramental Lifestyle Worksheet' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Read in VISIONS' }))
+  fireEvent.click(screen.getByRole('link', { name: 'Lifestyle' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Read Sacramental Lifestyle Worksheet' }))
   const response = await screen.findByRole('textbox', { name: 'Your answer 1' })
   const value = 'Make room for an unhurried weekly meal.'
   fireEvent.change(response, { target: { value } })
@@ -216,4 +176,7 @@ test('saves a private course answer then applies a copy with its source to the C
   await screen.findByText('Idea added to the network.')
   assert.deepEqual(payloads, [{ promptId, answer: value }])
   assert.ok(localStorage.getItem('visions.framework.v1')?.includes(promptId))
+  fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }))
+  fireEvent.click(screen.getByRole('link', { name: 'VISIONS Core' }))
+  assert.ok(await screen.findByText('Saved notes and course applications (1)'))
 })

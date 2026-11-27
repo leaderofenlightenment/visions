@@ -10,26 +10,6 @@ export const agents = [
 
 export type AgentId = (typeof agents)[number]['id']
 
-export const domains = [
-  { name: 'Theology & Spirituality', full: 'Theology, Spirituality and the Sublime', color: '#48dbe2' },
-  { name: 'Philosophy & Psychology', full: 'Philosophy and Psychology', color: '#b281f7' },
-  { name: 'Self-Mastery', full: 'Self-Mastery', color: '#ec67d2' },
-  { name: 'Creativity & Art', full: 'Creativity and Art', color: '#f477a9' },
-  { name: 'Technology & AI', full: 'Technology and Artificial Intelligence', color: '#648af0' },
-  { name: 'Relationships & Systems', full: 'Relationships and Systems Thinking', color: '#6689fc' },
-  { name: 'Health & Vitality', full: 'Health and Vitality', color: '#3bdd9e' },
-  { name: 'Lifestyle & Values', full: 'Lifestyle Design and Values', color: '#ebc767' },
-  { name: 'Business & Anthropology', full: 'Business, Creative Income and Anthropology', color: '#e88959' },
-] as const
-
-export const outputs = [
-  { id: 'music', name: 'Ambient Music', detail: 'Soundscapes & scores', color: '#b989ff' },
-  { id: 'articles', name: 'Articles', detail: 'Research & long-form', color: '#5cdbef' },
-  { id: 'posts', name: 'Short Posts', detail: 'Ideas & social copy', color: '#fa9c75' },
-  { id: 'threads', name: 'Monthly Threads', detail: 'Series & narratives', color: '#c98eff' },
-  { id: 'visuals', name: 'Neural Visuals', detail: 'Covers & thumbnails', color: '#66e5ac' },
-] as const
-
 export const modules = [
   { id: 'lifestyle', name: 'Lifestyle', domain: 'Being', title: 'The Rule of Life', detail: 'Rhythms, habits, and intentional living.', color: '#49e6b2' },
   { id: 'business', name: 'Business', domain: 'Creating', title: 'The Creation Engine', detail: 'Ethical business and creative practice.', color: '#ffc07b' },
@@ -38,21 +18,6 @@ export const modules = [
 
 export type ModuleId = (typeof modules)[number]['id']
 
-export const stages = [
-  { name: 'Create', color: '#e875f2', description: 'Set direction, synthesize sources, develop ideas, and create an initial draft.' },
-  { name: 'Review', color: '#63baff', description: 'Revisit claims, actions, and assumptions with care. Human approval is required before publishing.' },
-  { name: 'Publish', color: '#59e5a1', description: 'Prepare approved work to share with others. External publishing is planned for a later phase.' },
-  { name: 'Learn', color: '#fbb765', description: 'Collect authorized feedback and performance observations while respecting the limits of engagement metrics.' },
-  { name: 'Refine', color: '#b58cff', description: 'Apply what you learn to future work while preserving the ethical and theological foundations.' },
-] as const
-
-export const destinations = [
-  ['dashboard', 'Dashboard'], ['agents', 'Agents'], ['lifestyle', 'Lifestyle'], ['business', 'Business'],
-  ['relationships', 'Relationships'], ['codex', 'Reality Codex'], ['course', 'Course'], ['projects', 'Projects'],
-  ['knowledge', 'Knowledge'], ['content', 'Content Library'], ['analytics', 'Analytics'], ['guide', 'Guided Framework'], ['plans', 'Plans'], ['settings', 'Settings'],
-] as const
-
-export type Destination = (typeof destinations)[number][0]
 export type Draft = { id: string; intention: string; agents: AgentId[]; createdAt: string }
 
 export function matches(query: string, ...fields: string[]) {

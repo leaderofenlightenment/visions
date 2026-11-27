@@ -1,8 +1,6 @@
 # VISIONS Reality Codex
 
-The Nexus brings Lifestyle, Business, and Relationships into one framework.
-Its seven VISIONS lenses help you reflect on purpose, connections, meaning,
-patterns, next steps, limits, and sustainable rhythms.
+Start in the **VISIONS Core** on the Nexus. The Codex walks through seven movements, with one prompt for Theosis, Creativity, and Psychology in each movement. Saving answers updates your Rule of Life, Business Plan, and Relationship Management document. Download the [user manual](public/visions-user-guide.pdf) from the Core.
 
 ## Run locally
 
@@ -13,90 +11,40 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3000 and select the **VISIONS Core**. Choose a lens and one
-or more life domains, then save an idea. Link related ideas across lenses and
-domains. Open the central VISIONS Core to find saved ideas by lens and life domain.
-Each lens has a smaller map of its ideas in the Agents workspace. Settings controls motion and network
-detail. The Core can export the framework as JSON.
-
-Without Supabase, the framework is stored in the current browser. Keep local
-ideas non-sensitive. Supabase account data and the browser framework are
-separate. Configuring Supabase does not upload browser ideas.
+Open http://localhost:3000. Sign in under **Account and settings** to use your private workspace. When Supabase is unavailable, use this browser for non-sensitive entries. Browser and account storage are separate.
 
 ```sh
 npm run verify
 ```
 
-This runs lint, TypeScript checks, automated tests, and a production build.
-See the [deployment guide](docs/deployment.md) for hosted verification.
+This runs lint, TypeScript checks, automated tests, and a production build. See the [deployment guide](docs/deployment.md) for hosted verification.
 
 ## Supabase setup
 
-Create a Supabase project. Apply the SQL files in
-[`supabase/migrations`](supabase/migrations) in filename order, skipping any
-migration already applied to that project. The fourth migration adds
-owner-scoped framework storage. Create an email/password user under
-**Authentication → Users**. Copy `.env.example` to `.env.local`, set
-`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and sign in
-from Lifestyle, Relationships, or Projects. Use the publishable key.
+Create a Supabase project. Apply each SQL file in [supabase/migrations](supabase/migrations) in filename order. Create an email/password user under **Authentication → Users**. Copy `.env.example` to `.env.local`, then set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Sign in under **Account and settings**.
 
-The personal workspaces include habits, calendars, journals, relationship
-profiles and projects. The database applies row-level security to personal
-records, the framework, and the source library.
+Existing Core answers and course notes use the same database and browser storage keys. Learners who used the earlier workbook can review their answers against the revised prompts. The rebuilt dashboard needs no new migration.
 
-## Source library and Core reflection
+## The Master Creator and the three workspaces
 
-In **Knowledge**, save short passages with attribution, edition, locator,
-provenance, and rights. Browse and search by title. To correct a passage,
-create a replacement and remove the obsolete record.
+- **Lifestyle** contains your Rule of Life, Sacramental Lifestyle Worksheet, and Modern Monastic bonus. Habits and journals sit below the course materials.
+- **Business** takes you from your Business Plan and Career Creation Clarity through The Vortex Funnel, then to content research, creation, and scheduling with the Digital Marketing Toolkit and Eden.
+- **Relationships** contains your Relationship Management document, Interpersonal Dynamic Articulation and its worksheets, and Threefold Partner Identification. Your private relationship records sit in the same workspace.
 
-For optional AI reflection, configure server-only `OPENAI_API_KEY` and a
-Responses API-compatible `OPENAI_MODEL`. Sign in and open **Reflect with the
-VISIONS Core**. The Core considers all seven lenses and prompts you to connect
-the three life domains. Each run sends the submitted intention and up to
-three explicitly selected passages after you grant consent. Framework ideas,
-journals, and relationship records are outside the request. The database
-allows one run per account per calendar minute, and provider calls have a
-45-second deadline. The UI shows the selected passages for citation checking.
+Each workspace contains its related lessons. Enrolled learners can read hosted materials, save answers and apply selected responses in the Core. A copy keeps its source ID. Editing a lesson response leaves any previously applied copy unchanged until the learner applies it again. See the [course publishing and enrollment guide](docs/course-import.md).
 
-Story and Negation are lenses for meaning and discernment. Article production,
-automated editorial review, media rendering, and external publishing are
-deferred. See the [development roadmap](docs/roadmap.md) for remaining work.
+## VISIONS AI
+
+Under **Reflect with VISIONS AI**, one request uses the complete method. The user controls the submitted intention and up to three selected source passages. Configure server-only `OPENAI_API_KEY` and `OPENAI_MODEL` to enable it for AI or concierge enrollments. The account store enforces one run per calendar minute. Provider calls have a 45-second deadline. The source library is available in the same panel.
+
+## Eden
+
+Open **Business → Research, create, and publish**. The referral link opens Eden. An enrolled learner with their own Eden API key can preview an approved business draft and send it to their Eden Library. The key is used for that request. VISIONS only sends the draft title and text the learner approves.
+
+The referral does not grant a paid Eden subscription. Bundling an Eden plan into a VISIONS purchase requires a partnership agreement and a fulfillment method from Eden. See [Eden integration and fulfillment](docs/eden.md).
 
 - [Project requirements](AGENTS.md)
 - [Architecture](docs/architecture.md)
 - [Design system](docs/design.md)
 - [Database and security model](docs/data-model.md)
-
-## The Master Creator
-
-Open **Course** in the Nexus to find The Master Creator lessons, systems,
-bonuses, and linked resources. Use **Apply in VISIONS** to save an idea or
-practice with a default lens and life-domain assignment. Both can be changed.
-The application retains the Notion source ID in the existing framework graph
-and follows the same Supabase or browser storage settings. Related saved
-applications appear as suggested connections you can accept or remove.
-
-Lifestyle, Business, and Relationships show course materials relevant to
-their domains. Content Library includes the Digital Marketing Toolkit.
-Learners open **Read in VISIONS** and sign in with an enrolled account. They
-can read imported course pages, open their attachments, and follow links to
-other imported materials inside the app. See the [owner import guide](docs/course-import.md)
-to publish the private course in Supabase and enroll learners.
-
-## Guided framework and course answers
-
-Open **Guided Framework** to enter the 21 free VISIONS answers. Each saved
-answer is a tagged idea in the existing framework. The Core connects answers
-within each domain and between the same lens across domains. The dashboard
-network is a decorative 3D scene with a single entry point into the Core. Lifestyle,
-Business, and Relationships collect those answers and any imported course
-applications into three living documents. Each document can be downloaded
-as Markdown. The [learner manual](public/visions-user-guide.pdf) is also
-available from the dashboard.
-
-Course response spaces save to the signed-in learner's private course
-record. Choose **Add answer to VISIONS Core** to review and save a separate
-copy for the network. Editing or removing a course answer does not change
-a copy already saved to the Core. AI never receives these answers
-automatically.
+- [Development roadmap](docs/roadmap.md)

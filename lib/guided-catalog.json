@@ -1,44 +1,153 @@
-[
-  {
-    "id": "lifestyle",
-    "title": "The Theosis Framework",
-    "pillars": ["Mind", "Body", "Soul"],
-    "prompts": [
-      ["vision", "Vision of Theosis", "Mind", "What would a deliberate 24-hour rhythm look like if your evening made room for stillness and prepared you for the next morning?"],
-      ["integration", "Intelligence of God", "Body", "How can sleep, food, movement, and prayer support one another in your actual week?"],
-      ["story", "Story of Mind", "Soul", "Recall a season when your old way of living stopped working. What did it teach you about what was underneath the habit?"],
-      ["insight", "Inspiration from Saints", "Mind", "What enduring truth about God and the soul can anchor your daily attention? Whose example helps you remember it?"],
-      ["outcome", "Outcomes in Life", "Soul", "What needs to change in the next forty days, and what concrete fruit would you look for by day ninety?"],
-      ["negation", "Narrative of Identity", "Body", "What story do you tell yourself just before compromising rest, focus, or patience? Name a truer response you can practice."],
-      ["system", "Systems for Mastery", "Mind", "Where did order break down in the last seven days? Trace the pattern through mind, body, or soul and choose one rhythm to revisit."]
-    ]
-  },
-  {
-    "id": "business",
-    "title": "The Creative Framework",
-    "pillars": ["Asceticism", "Skillset", "Community"],
-    "prompts": [
-      ["vision", "Vision of Idea", "Asceticism", "What work would you create if your attention were protected? What would you stop consuming or doing to give it room?"],
-      ["integration", "Intrigue through Science", "Skillset", "What single craft are you deepening? What evidence or small experiment would help you practice it systematically while honoring your other responsibilities?"],
-      ["story", "Stories of the Saints", "Community", "Name a turning point in your craft and who stood with you. What story or example from the saints helps you understand that change?"],
-      ["insight", "Insight from Scripture", "Skillset", "What costly lesson has your craft taught you about discipline or vocation? What passage helps you examine it?"],
-      ["outcome", "Outcomes from Practice", "Asceticism", "What observable fruit would show that practice is serving its purpose? Describe a finish line that leaves room for real rest."],
-      ["negation", "Negation of Objection", "Skillset", "What objection or shortcut needs a truthful answer? Which skill must you build through practice before you claim it?"],
-      ["system", "Systemization of Principles", "Asceticism", "What is the first sign that the work has drifted from its purpose? Identify a principle and a recurring practice that would address it."]
-    ]
-  },
-  {
-    "id": "relationships",
-    "title": "The Psychological Framework",
-    "pillars": ["Self-Mastery", "Household Dynamics", "Ministry"],
-    "prompts": [
-      ["vision", "Vision of Character", "Self-Mastery", "What would peace and relational order look like if those closest to you received your best attention and care?"],
-      ["integration", "Image of God", "Household Dynamics", "Where is your personal discipline helping the people closest to you? Where could remembering their dignity change how you show up?"],
-      ["story", "Storytelling as Communication", "Ministry", "What experience can you communicate in service of others, and what blind spot should you keep in view when telling it?"],
-      ["insight", "Intuition and Intention", "Household Dynamics", "Where are you swinging between extremes with someone close to you? What do you sense, what remains uncertain, and how do you intend to respond?"],
-      ["outcome", "Outpouring of Love", "Ministry", "If you kept showing up faithfully for five years, what would have changed for the people or community you serve?"],
-      ["negation", "Non-Negotiables of Commitment", "Self-Mastery", "Name a reactive pattern you want to leave behind and the boundary or commitment you want to practice in its place."],
-      ["system", "Systems of Attachment", "Household Dynamics", "What relational pattern keeps returning, and where do you notice it first? What rhythm of care, accountability, or support would help you respond?"]
-    ]
-  }
-]
+{
+  "introduction": [
+    "Human flourishing requires the alignment of three sacred topics: **Theosis**, **Creativity**, and **Psychology**. Each is a macro pillar of the one soul, each holding three sub-pillars, and none is the servant of the others; each is the mirror that keeps the others honest.",
+    "- **Creativity without Psychology is an illusion.** Build impressive work while your relational and inner life fracture, and you have traded your first covenant for vanity.",
+    "- **Psychology without Theosis is stagnation.** Tend the relational and inner life while the soul's stillness in God grows quiet through neglect rather than discipline, and your peace will rot from the inside into passivity.",
+    "- **Theosis without Creativity is buried talent.** Hoard the interior life and refuse to serve the community and master the craft, and the light you hold stays hidden under the basket.",
+    "The three topics divide into nine sub-pillars. **Theosis** (the interior life) is ordered in Mind, Body, and Soul. **Creativity** (the generative work) is disciplined in Asceticism, Skillset, and Community. **Psychology** (the relational and inner self) is ordered in Self-Mastery, Household Dynamics, and Ministry. The nine read vertically as a hidden triad: Health runs through Mind, Asceticism, and Self-Mastery; Wealth through Body, Skillset, and Household Dynamics; Relationships through Soul, Community, and Ministry. The number three is not stylistic; it mirrors the Trinity. Each empty bullet point below is a space for your own writing.",
+    "Two ways of bearing the image run through every movement. Each pillar is taught by a man and by a woman, and neither can be understood without the other. Where the masculine builds the wall and guards the gate, the feminine receives the seed and brings it to term; where the masculine is the outward call, the feminine is the hidden assent that alone lets the call bear fruit. You are asked to name your own pattern, and, in the same breath, to see its counterpart — so that you may sharpen your discernment of the other sex not by theory but by watching how the same movement, lived by a soul unlike yours, still arrives at the one rule."
+  ],
+  "movements": [
+    {
+      "id": "vision",
+      "name": "Vision",
+      "title": "The Horizon of Dominion",
+      "reading": "In the beginning, before God filled the earth with life, He drew boundaries around chaos. The Spirit hovered over the formless deep, and the first creative act was the separation of light from darkness. You cannot multiply what you have not first bounded. The man Adam guarded the boundaries of the garden; the woman Eve received within them the first word of what life would become. Two ways of holding a boundary: one stands the watch, the other becomes the depth inside it.",
+      "prompts": {
+        "lifestyle": {
+          "pillar": "Mind",
+          "prompt": "The Hebrew day does not begin when you wake in a panic; it begins at sundown in stillness and preparation, because the mind that starts the day already scattered has lost the boundary before the first hour. What does a sovereign 24-hour cycle look like when your evening shutdown sets the container for your morning execution, free of compulsion and reactive noise?"
+        },
+        "business": {
+          "pillar": "Asceticism",
+          "prompt": "Bricks were made endlessly under the whip of quotas, yet the garden was given to be cultivated and guarded, and the woman was fashioned that it might bear more than it was given. Craft at the peak of your gifts is reached through renunciation, not accumulation. What does your generative work look like when it is protected by what you have chosen not to consume, generating abundance through high-leverage stewardship rather than administrative slavery?"
+        },
+        "relationships": {
+          "pillar": "Self-Mastery",
+          "prompt": "The Fathers called the home the domestic church, the first altar where character is tested and proven. Joseph guarded the household with a father's vigilance; the Theotokos held the living Word within it, and a mother's hidden assent becomes a household's visible order. What does true peace and relational order look like when your inner self, not your public face, receives your best energy before anyone else does?"
+        }
+      }
+    },
+    {
+      "id": "integration",
+      "name": "Integration",
+      "title": "The Stewardship of the Vessel",
+      "reading": "The body is the temple of the Holy Spirit, and what enters the gates of the eyes and ears forms the architecture of the soul. A temple is one structure, not three rooms that never touch. Integration asks whether Theosis, Creativity, and Psychology are fused into a single operating life, or running as tracks that meet only in crisis. The Desert Fathers and Mothers practised nepsis, standing guard at the door of the mind so that what is studied reaches the body and the spirit as one. The ascetic wore out the body in watchfulness; the myrrhbearing women carried the oils to a tomb, and by their going the news of the Resurrection first reached the world — the interior kept so faithfully that it overflowed into a public act.",
+      "prompts": {
+        "lifestyle": {
+          "pillar": "Body",
+          "prompt": "The body is a magnificent servant and a tyrannical master. When your sleep, food, training, and evening appetites go ungoverned, your stillness, your craft, and your bonds weaken together. Does your physical discipline draw its strength from the same stillness you practise in prayer, and feed it back, or are body and soul trained as if they were separate owners? The ascetic disciplines the body into a weapon; the mother disciplines hers into a shelter. Both are temples, stewarded each after its own design."
+        },
+        "business": {
+          "pillar": "Skillset",
+          "prompt": "Work at mastery is not inspiration but repetition under a rule, the skill honed in obscurity before it is trusted in public. The man was placed to keep the garden; the woman kept the word by heart long before it was written down. What single craft are you actually deepening, and is your practice fused to your prayer and your people, or practised in a room that touches neither?"
+        },
+        "relationships": {
+          "pillar": "Household Dynamics",
+          "prompt": "Integration fails most often where fidelity is tested daily: at the table, in the small hours, in the unglamorous tending of the people owed loyalty. The Theotokos \"kept all these things and pondered them in her heart,\" and the home became where the Word was hidden and raised. Is the order you are building reaching your household and closest kinship, or does it stop at the edge of your own discipline?"
+        }
+      }
+    },
+    {
+      "id": "story",
+      "name": "Story",
+      "title": "The Crucible of Authority",
+      "reading": "The Exodus pattern is immutable: bondage, then wilderness, then promised land. No authority is borrowed from books; it is forged by surviving the wilderness. Moses led out of bondage; Miriam sang the first song of deliverance at the far shore. One delivered by command, the other by worship — and both were needed before the people could cross.",
+      "prompts": {
+        "lifestyle": {
+          "pillar": "Soul",
+          "prompt": "Every prophet is first broken of a false strength before being trusted with a mission, and every mother is first emptied before she is filled. What was the specific season of fragmentation, compulsion, burnout, or failure that exposed the limits of your old way of living, and what did it teach you about the soul beneath the habit?"
+        },
+        "business": {
+          "pillar": "Community",
+          "prompt": "When Elisha was called he slaughtered his oxen and burned his plows, so nothing remained to retreat to. When Ruth stood at the threshing floor and laid her claim without reserve, she crossed a line no custom could take back — and a foreign woman's courage became a lineage's hinge. Looking back at the stronghold you conquered, what exact catalyst or costly decision severed the old cycle, and who stood with you at the far shore?"
+        },
+        "relationships": {
+          "pillar": "Ministry",
+          "prompt": "Jacob wrestled through the night, received a new name, and walked with a limp that kept him humble. Hannah, long barren, gave her son back to the temple and received a nation's prophet in return. Who are you becoming on the other side of your fires, and what is the single honest blind spot still being subdued today, for the sake of those you will serve?"
+        }
+      }
+    },
+    {
+      "id": "insight",
+      "name": "Insight",
+      "title": "The Internal Compass",
+      "reading": "Wisdom cries out in the street, and every human operates on a set of core laws. The task here is to extract the eternal from the temporal. Solomon the king asked for a discerning heart; the widow of Zarephath gave her last meal in a faith unadorned by any promise she could see — and the principle of trust was taught by a great man and a poor woman alike.",
+      "prompts": {
+        "lifestyle": {
+          "pillar": "Mind",
+          "prompt": "Trends shift like sand, but first principles are carved into bedrock. What is one non-negotiable law about God and the soul — about how a human being is actually ordered — that remains true regardless of culture, and that your daily mind can return to as an anchor?"
+        },
+        "business": {
+          "pillar": "Skillset",
+          "prompt": "Knowledge puffs up; lived experience builds the house. Peter learned by threefold denial; the mother at the foot of the Cross learned by a sword through her own soul. What is the most expensive lesson your craft has taught you about discipline, vocation, and how a skill is seasoned into mastery?"
+        },
+        "relationships": {
+          "pillar": "Household Dynamics",
+          "prompt": "The highest truths are paradoxes, holding strict discipline with deep rest, fierce ambition with radical humility. The judge demands the law; the intercessor overwhelms it with mercy. Where are you swinging between two extremes in the way you love and lead those closest to you, and what does the narrow, centered path look like in your own bonds?"
+        }
+      }
+    },
+    {
+      "id": "outcome",
+      "name": "Outcome",
+      "title": "The Living Fruit",
+      "reading": "We do not chase vanity metrics; we measure fruitfulness. Christ fasted forty days before His ministry, and the agricultural seasons of the Moedim govern the harvest. The apostles went out to plant; the women were first at the empty tomb, and by their witness the harvest of the Resurrection entered the world through a mother's mouth before any sermon was preached.",
+      "prompts": {
+        "lifestyle": {
+          "pillar": "Soul",
+          "prompt": "Christ fasted forty days before He stepped into His ministry, and Moses spent forty days on Sinai receiving the blueprint. The Theotokos bore within her own body the one fruit who redeems all others, and by a woman's \"yes\" the entire redemption entered history. What within your soul needs to change in the next forty days to step into the fullness of your assignment again, and what tangible harvest will it bear by the end of ninety?"
+        },
+        "business": {
+          "pillar": "Asceticism",
+          "prompt": "On the seventh day God ceased and beheld the order He had established. The fruit of the generative life is not output but the peace of having made only what was asked and refused the rest. What does that peace actually feel like in your body on a Sunday evening, when the work has been surrendered rather than merely stopped? The peace a father keeps at the gate and the peace a mother keeps at the hearth are one peace, felt in two bodies."
+        },
+        "relationships": {
+          "pillar": "Ministry",
+          "prompt": "The modern soul builds tents that blow away in a week; the ancients laid stone their grandchildren would worship in. Nehemiah rebuilt the wall in fifty-two days by bidding each family build before its own door; the faithfulness of grandmothers carried the faith through generations when no wall stood at all. If you run this liturgy faithfully for five years, what permanent body of work, lineage, or institution will stand as proof of lives served, not merely produced?"
+        }
+      }
+    },
+    {
+      "id": "negation",
+      "name": "Negation",
+      "title": "The Apologetic Edge",
+      "reading": "Gideon tore down the altar of Baal before he built a true altar to God. Order cannot be built without first naming and rejecting the false idols of the age. Gideon tore down the idol of his day by night; the Maccabean mother watched seven sons die rather than defile the covenant, and her refusal stood as a tearing-down no sword could match.",
+      "prompts": {
+        "lifestyle": {
+          "pillar": "Body",
+          "prompt": "Every fall begins with the whispered words, \"Did God really say?\" The serpent spoke the same lie to one woman in the garden and has never changed its method. What is the specific lie your body's appetites whisper to you right before you compromise your evening discipline, deep focus, or patience?"
+        },
+        "business": {
+          "pillar": "Skillset",
+          "prompt": "Daniel resolved not to defile himself with the royal rations of Babylon, even as every peer complied. What cultural norm, hustle-myth, or shortcut must you ruthlessly reject to protect the craft from becoming vanity, and what skill have you been tempted to fake rather than build?"
+        },
+        "relationships": {
+          "pillar": "Self-Mastery",
+          "prompt": "Esther risked her life to approach the king uncalled, defying the culture of a whole empire for the sake of her people. Draw the line in the sand: the old, reactive version of my life operated on the false law of [X], but from this day forward my reality is governed by [Y]."
+        }
+      }
+    },
+    {
+      "id": "system",
+      "name": "System",
+      "title": "The Wall Audit",
+      "reading": "Nehemiah walked by night and surveyed the burned gates and broken walls of Jerusalem; he noted every breach before he laid a single stone. This pillar does not repair the wall. It names where the wall has already been breached so the rebuilding can be aimed at the right place. Nehemiah surveyed by night with a man's resolve; the women who found the empty tomb ran at dawn with a woman's urgency — and both carried the same question: where is the breach, and who will rebuild it?",
+      "prompts": {
+        "lifestyle": {
+          "pillar": "Mind",
+          "prompt": "Across the last seven days, where did order break down most consistently, and did that breakdown first form in the mind, the body, or the soul?"
+        },
+        "business": {
+          "pillar": "Asceticism",
+          "prompt": "When the breach opens, what is the first visible sign in your output or your craft that the generative life has begun to feed on the wrong fuel — and what discipline slipped to let it in?"
+        },
+        "relationships": {
+          "pillar": "Household Dynamics",
+          "prompt": "What keeps returning no matter how often you push it down, and which of your closest bonds is the place the breach most often first shows itself?"
+        }
+      }
+    }
+  ],
+  "closing": "The three topics are each the mirror that keeps the other two honest, and the nine sub-pillars read vertically as the hidden triad of health, wealth, and relationships through the whole of life. The man and the woman within each movement are not decorative; they are two readings of the same law, and to know your own more fully you must meet the other's. Return to it at the new moon and at the quarter. Fill what is empty, keep what has healed, and begin the next forty days from the answer that named its breach most plainly."
+}

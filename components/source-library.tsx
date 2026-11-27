@@ -18,7 +18,8 @@ export function SourceLibrary() {
     fetch('/api/sources?' + new URLSearchParams({ q: query, offset: String(offset) }), { signal: pending.signal })
       .then(async response => {
         const data = await response.json()
-        if (!response.ok) throw new Error(data.error)
+        if (!response.ok || !Array.isArray(data.sources)) throw new Error(data.error ?? 'Could not load sources.')
+        if (pending.signal.aborted) return
         setSources(data.sources)
         setReady(true)
       }).catch(error => {

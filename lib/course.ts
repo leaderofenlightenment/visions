@@ -165,14 +165,12 @@ export const courseMaterials: CourseMaterial[] = [
   },
   {
     "id": "3bd776d8f6278060ae08ee81e9984996",
-    "title": "The VISIONS Framework",
+    "title": "The Vortex Funnel",
     "parent": null,
     "group": "Bonuses",
     "lens": "integration",
     "domains": [
-      "lifestyle",
-      "business",
-      "relationships"
+      "business"
     ],
     "toolkit": false
   },
@@ -465,3 +463,20 @@ export const courseMaterials: CourseMaterial[] = [
 ]
 courseMaterials.push(...[{"id":"3da776d8f6278034999cf38f53804bde","title":"Project Management","parent":"65f530fca2914f938321f5d63855842e","group":"Systems","lens":"outcome","domains":["business"],"toolkit":false},{"id":"181776d8f6278060a70edbca7e5453bf","title":"Knowledge Clustering System","parent":"65f530fca2914f938321f5d63855842e","group":"Systems","lens":"outcome","domains":["business"],"toolkit":false},{"id":"182776d8f62780578af3e87d3dcf279d","title":"Routines","parent":"181776d8f62780bc8972e152cefc4295","group":"Systems","lens":"system","domains":["lifestyle"],"toolkit":false},{"id":"190776d8f627800d80d8f63eab649c17","title":"Daily Drive","parent":"181776d8f62780bc8972e152cefc4295","group":"Systems","lens":"system","domains":["lifestyle"],"toolkit":false},{"id":"3da776d8f627804b9c20f3250ee1b413","title":"Budgeting","parent":"181776d8f62780bc8972e152cefc4295","group":"Systems","lens":"system","domains":["lifestyle"],"toolkit":false},{"id":"3dc776d8f62780a0a86dea274fd0f8d5","title":"Habits","parent":"181776d8f62780bc8972e152cefc4295","group":"Systems","lens":"system","domains":["lifestyle"],"toolkit":false},{"id":"30b776d8f62781948f86d1763034df6b","title":"Weekly Flow Testing","parent":"181776d8f62780bc8972e152cefc4295","group":"Systems","lens":"system","domains":["lifestyle"],"toolkit":false},{"id":"319776d8f62780e38fc4e16df07b43d4","title":"Weekly Flow Testing (1)","parent":"181776d8f62780bc8972e152cefc4295","group":"Systems","lens":"system","domains":["lifestyle"],"toolkit":false},{"id":"182776d8f627814f964cfdb1fe27bb9c","title":"Offer Creation Framework","parent":"186776d8f62780e78662c902f56d9284","group":"Systems","lens":"outcome","domains":["business"],"toolkit":true},{"id":"182776d8f627812f8d0ec01fcbf4b571","title":"Launch Stages","parent":"186776d8f62780e78662c902f56d9284","group":"Systems","lens":"outcome","domains":["business"],"toolkit":true},{"id":"182776d8f627810d9e8af5b72eb352b5","title":"Network Boost","parent":"186776d8f62780e78662c902f56d9284","group":"Systems","lens":"outcome","domains":["business"],"toolkit":true},{"id":"181776d8f62780e58a63c9b9ddd4e939","title":"Connections","parent":"181776d8f62780ff860ecdf42e155c6c","group":"Systems","lens":"integration","domains":["business"],"toolkit":false}] as CourseMaterial[])
 export function courseMaterial(id: unknown) { return courseMaterials.find(item => item.id === id) }
+
+export const workspaceCourse = {
+  lifestyle: {
+    main: '189776d8f6278108ac1cfffcbc4605e8', bonus: '3bd776d8f62780a982c7db4762dda603',
+    lessons: ['189776d8f627818aa5a5e8fcc038dc16', '189776d8f62781569ca9fb976ca106d5', '189776d8f62781b48013cd66e5e79529'],
+  },
+  business: {
+    main: '189776d8f62781f3b03ee937efb03f5e', bonus: '3bd776d8f6278060ae08ee81e9984996',
+    lessons: ['189776d8f62781e0aef4c31f429f6591', '189776d8f6278123bb27fb1e27a0943a', '189776d8f62781029cc1f01704ef4e9e'],
+  },
+  relationships: {
+    main: '189776d8f6278172bf8eccabbd60279b', bonus: '3bd776d8f627808696f1da10ea2f0037',
+    lessons: ['189776d8f62781d7962df8631b189391', '189776d8f62781c1a9bafb9169768349', '3b9776d8f62780bab045df09cf4c5e65'],
+  },
+} as const
+
+export const marketingToolkit = '189776d8f62781d98745d93187bca0c7'

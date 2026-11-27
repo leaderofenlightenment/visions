@@ -59,7 +59,7 @@ export function parseFramework(value: unknown): Framework | null {
     }
     ids.add(item.id)
     ideas.push({
-      id: item.id, lens, domains, title: guide?.[1] ?? item.title.trim(), detail: item.detail.trim(),
+      id: item.id, lens, domains, title: guide?.title ?? item.title.trim(), detail: item.detail.trim(),
       ...(guideDomain ? { guideDomain } : {}),
       ...(item.courseId ? { courseId: item.courseId as string } : {}),
       ...(item.coursePromptId ? { coursePromptId: item.coursePromptId as string } : {}),
@@ -81,12 +81,4 @@ export function parseFramework(value: unknown): Framework | null {
 
 export function removeIdea(graph: Framework, id: string): Framework {
   return { ideas: graph.ideas.filter(idea => idea.id !== id), connections: graph.connections.filter(edge => !edge.includes(id)) }
-}
-
-export function frameworkSummary(graph: Framework) {
-  return agents.map(lens => ({
-    lens,
-    ideas: graph.ideas.filter(idea => idea.lens === lens.id),
-    domains: modules.map(domain => ({ ...domain, count: graph.ideas.filter(idea => idea.lens === lens.id && idea.domains.includes(domain.id)).length })),
-  }))
 }

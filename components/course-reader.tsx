@@ -9,11 +9,16 @@ import { courseMaterial } from '@/lib/course'
 
 const mediaUrl = /^\/api\/course\/media\/[a-f0-9]{64}\.[a-z0-9]{1,8}$/
 
-function readerUrl(url: string) {
+export function readerUrl(url: string, toolkit: boolean) {
   if (mediaUrl.test(url) || /^#course-material=[a-f0-9]{32}$/.test(url)) return url
+  if (toolkit) return ''
   try {
     const target = new URL(url)
-    if (/^https?:$/.test(target.protocol) && !/(^|\.)notion\.(com|so|site)$/i.test(target.hostname)) return url
+    if (!/^https?:$/.test(target.protocol) || /(^|\.)notion\.(com|so|site)$/i.test(target.hostname) || target.username || target.password) return ''
+    for (const key of [...target.searchParams.keys()]) {
+      if (/^(?:via|ref|affiliate|affiliate_id|referral|aff|tag|utm_.+)$/i.test(key)) target.searchParams.delete(key)
+    }
+    return target.href
   } catch { /* Unrecognized links remain plain text. */ }
   return ''
 }
@@ -74,10 +79,10 @@ export function CourseReader({ id, onOpen, onApply }: {
     {!resource.writable && <p role="alert">Course answers are temporarily unavailable. You can still read the material.</p>}
     <div className="course-reading">{resource.parts.map((part, index) => <div key={part.prompt?.id ?? 'text-' + index}>
       <Markdown remarkPlugins={[remarkGfm]} skipHtml
-        urlTransform={readerUrl}
+        urlTransform={url => readerUrl(url, courseMaterial(id)?.toolkit === true)}
         components={{
           a({ href, children }) {
-            if (!href) return <>{children}</>
+            if (!href) return typeof children === 'string' && /^https?:\/\//i.test(children) ? null : <>{children}</>
             if (href.startsWith('#course-material=')) {
               const target = href.split('=')[1]
               return courseMaterial(target)

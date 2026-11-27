@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { agents, domains, matches, stages } from '../lib/codex.ts'
+import { agents, matches } from '../lib/codex.ts'
+import { contentDomains } from '../lib/guided.ts'
 
 test('preserves the canonical sequence and colors', () => {
   assert.equal(agents.map(agent => agent.letter).join(''), 'VISIONS')
@@ -8,14 +9,16 @@ test('preserves the canonical sequence and colors', () => {
   assert.equal(new Set(agents.map(agent => agent.id)).size, 7)
 })
 
-test('catalog search handles multiple terms, case, and whitespace', () => {
-  assert.ok(matches('  SUBLIME  theology ', domains[0].name, domains[0].full))
+test('workspace search handles multiple terms, case, and whitespace', () => {
+  assert.ok(matches('  VISIONS  codex ', 'VISIONS Core', 'Codex method guided framework'))
   assert.ok(matches('', 'any entry'))
-  assert.ok(!matches('theology physics', domains[0].full))
+  assert.ok(!matches('theology physics', 'Theosis'))
 })
 
-test('provides all nine knowledge domains and the five lifecycle stages', () => {
-  assert.equal(domains.length, 9)
-  assert.deepEqual(stages.map(stage => stage.name), ['Create', 'Review', 'Publish', 'Learn', 'Refine'])
-  assert.match(stages[1].description, /Human approval is required/)
+test('shows the three Codex topics and their nine sub-pillars', () => {
+  assert.deepEqual(contentDomains.map(({ topic, pillars }) => [topic, ...pillars]), [
+    ['Theosis', 'Mind', 'Body', 'Soul'],
+    ['Creativity', 'Asceticism', 'Skillset', 'Community'],
+    ['Psychology', 'Self-Mastery', 'Household Dynamics', 'Ministry'],
+  ])
 })

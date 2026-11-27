@@ -35,9 +35,9 @@ export async function POST(request: Request) {
   const key = process.env.OPENAI_API_KEY
   const model = process.env.OPENAI_MODEL
   const db = key && model ? await supabaseServer() : null
-  if (!key || !model || !db) return json({ error: 'Agent execution is unconfigured.' }, 503)
+  if (!key || !model || !db) return json({ error: 'VISIONS AI is unconfigured.' }, 503)
   const { data } = await db.auth.getUser()
-  if (!data.user) return json({ error: 'Sign in before running an agent.' }, 401)
+  if (!data.user) return json({ error: 'Sign in before using VISIONS AI.' }, 401)
 
   const enrollment = await db.from('course_enrollments').select('tier').eq('user_id', data.user.id).maybeSingle()
   if (enrollment.error) return json({ error: 'Could not check AI access.' }, 503)

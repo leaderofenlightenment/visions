@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { coreModes } from '@/lib/plans'
 import type { Source } from '@/lib/sources'
 
 type Citation = Source & { citation: string }
@@ -21,10 +20,10 @@ export function AgentRun() {
   useEffect(() => {
     const check = new AbortController()
     fetch('/api/agents', { signal: check.signal }).then(async response => {
-      if (!response.ok) throw new Error('Could not check agent access.')
+      if (!response.ok) throw new Error('Could not check AI access.')
       return response.json()
     }).then(setAccess)
-      .catch(() => { if (!check.signal.aborted) setError('Could not check agent access.') })
+      .catch(() => { if (!check.signal.aborted) setError('Could not check AI access.') })
     return () => { check.abort(); active.current?.abort() }
   }, [])
 
@@ -35,6 +34,8 @@ export function AgentRun() {
       .then(async response => {
         if (!response.ok) throw new Error('Could not look up sources.')
         const data = await response.json()
+        if (!Array.isArray(data.sources)) throw new Error('Could not look up sources.')
+        if (check.signal.aborted) return
         setAvailable(data.sources)
         setSourceError('')
       }).catch(() => { if (!check.signal.aborted) setSourceError('Could not look up sources.') })
@@ -65,7 +66,7 @@ export function AgentRun() {
     try {
       const response = await fetch('/api/agents', {
         method: 'POST', signal: control.signal, headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ intention: form.get('intention'), mode: form.get('mode'), consent: form.get('consent') === 'on', sourceIds: selected.map(source => source.id) }),
+        body: JSON.stringify({ intention: form.get('intention'), consent: form.get('consent') === 'on', sourceIds: selected.map(source => source.id) }),
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error)
@@ -82,12 +83,11 @@ export function AgentRun() {
   return <section className="dialog-section">
     <h3>Core reflection</h3>
     {error && <p role="alert">{error}</p>}
-    {!access && !error && <p role="status">Checking agent access…</p>}
+    {!access && !error && <p role="status">Checking AI access…</p>}
     {access && !access.configured && <p className="muted">AI provider unconfigured. See the README for setup.</p>}
-    {access?.configured && !access.signedIn && <p className="muted">Sign in from Lifestyle, Relationships, or Projects to use Core reflection.</p>}
+    {access?.configured && !access.signedIn && <p className="muted">Sign in from Account and settings to use Core reflection.</p>}
     {access?.signedIn && !access.entitled && <p className="muted">Core AI is available on the VISIONS AI and Work with Eric plans.</p>}
     {access?.entitled && <form className="personal-form" onSubmit={run}>
-      <label>What would you like help with? <select name="mode">{coreModes.map(([mode, name]) => <option key={mode} value={mode}>{name}</option>)}</select></label>
       <label>Intention <textarea name="intention" required maxLength={1000} rows={4} placeholder="Share a non-sensitive question spanning your life domains"/></label>
       <details>
         <summary>Choose sources ({selected.length}/3)</summary>

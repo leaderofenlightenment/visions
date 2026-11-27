@@ -377,7 +377,7 @@ export function Nexus() {
         {destination === 'guide' && <GuidedWorkspace key={guideDomain} initial={guideDomain} store={framework} onSignIn={() => navigate('projects')}/>}
         {destination === 'plans' && <VisionsPlans onStart={() => openGuide()} onCourse={() => navigate('course')}/>}
         {selectedModule && <DomainDocument store={framework} domain={selectedModule.id} onStart={() => openGuide(selectedModule.id)}/>}
-        {selectedModule && <CourseLibrary key={selectedModule.id} graph={framework.graph} domain={selectedModule.id} onRead={material => readCourse(material.id)}
+        {selectedModule && <CourseLibrary key={`course-library-${selectedModule.id}`} graph={framework.graph} domain={selectedModule.id} onRead={material => readCourse(material.id)}
           onApply={material => setOverlay({ kind: 'course', material })}/>}
         {destination === 'agents' && <div className="workspace-grid">
           {agents.map(agent => {

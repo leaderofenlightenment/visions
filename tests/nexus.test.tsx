@@ -137,6 +137,20 @@ test('applies a course system and makes it available in the Core', async () => {
   assert.ok(await screen.findByRole('button', { name: 'System in Lifestyle: 1 idea' }))
 })
 
+test('keeps each domain course library in its own workspace when switching sections', () => {
+  render(<Nexus />)
+
+  const courseHeading = 'Apply the course to Relationships'
+  for (const destination of ['Lifestyle', 'Business', 'Course', 'Content Library', 'Settings', 'Dashboard']) {
+    fireEvent.click(screen.getByRole('link', { name: 'Relationships' }))
+    assert.equal(screen.getAllByRole('heading', { name: courseHeading }).length, 1)
+    assert.ok(screen.getByRole('heading', { name: 'Interpersonal Dynamic Articulation' }))
+    assert.ok(screen.getByRole('heading', { name: 'Private relationships' }))
+
+    fireEvent.click(screen.getByRole('link', { name: destination }))
+    assert.equal(screen.queryAllByRole('heading', { name: courseHeading }).length, 0, destination)
+  }
+})
 
 test('reads lesson content inside VISIONS and follows an internal course reference', async () => {
   const fetchMock = globalThis.fetch as unknown as { mock: { mockImplementation(impl: (path: string) => Promise<Response>): void } }

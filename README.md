@@ -15,8 +15,8 @@ npm run dev
 
 Open http://localhost:3000 and select the **VISIONS Core**. Choose a lens and one
 or more life domains, then save an idea. Link related ideas across lenses and
-domains. The Nexus adds clickable branches as you fill in the framework, and
-each lens has a smaller map of its ideas. Settings controls motion and network
+domains. Open the central VISIONS Core to find saved ideas by lens and life domain.
+Each lens has a smaller map of its ideas in the Agents workspace. Settings controls motion and network
 detail. The Core can export the framework as JSON.
 
 Without Supabase, the framework is stored in the current browser. Keep local
@@ -87,8 +87,9 @@ to publish the private course in Supabase and enroll learners.
 ## Guided framework and course answers
 
 Open **Guided Framework** to enter the 21 free VISIONS answers. Each saved
-answer is a tagged idea in the existing framework. The Nexus draws links
-within each domain and between the same lens across domains. Lifestyle,
+answer is a tagged idea in the existing framework. The Core connects answers
+within each domain and between the same lens across domains. The dashboard
+network is a decorative 3D scene with a single entry point into the Core. Lifestyle,
 Business, and Relationships collect those answers and any imported course
 applications into three living documents. Each document can be downloaded
 as Markdown. The [learner manual](public/visions-user-guide.pdf) is also

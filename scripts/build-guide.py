@@ -93,7 +93,7 @@ y = begin(1, 'Start here', 'A practical guide to VISIONS',
 y = section(y, '01', 'Fill in the framework',
             'Open Guided Framework from the Nexus. Start with Lifestyle, then work through Business and Relationships. Each domain has seven prompts. Save a domain before leaving the page. You can return to finish the other prompts later.')
 y = section(y, '02', 'See what you saved in the network',
-            'Return to Dashboard. Each saved answer becomes an idea under its VISIONS lens and domain. Related guided answers connect as you fill in the framework. Open a colored branch to inspect the ideas inside it.')
+            'Return to Dashboard and open the central VISIONS Core. Each saved answer appears under its lens and domain. Use the framework grid to inspect connected ideas. Open Agents from the sidebar to explore individual lenses.')
 y = section(y, '03', 'Use your three domain documents',
             'Open Lifestyle, Business, or Relationships in the sidebar. Each document gathers your saved framework answers and course applications. Edit an answer from Guided Framework to update it everywhere. Download a document to keep a copy.')
 y = note(y - 6, 'One way to start',

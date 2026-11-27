@@ -18,9 +18,9 @@ Production target is a private GitHub repository, Vercel and Supabase with separ
 The Core owns a graph of reflections classified by one VISIONS lens and one
 or more life domains. Supabase persists the graph as one owner-scoped,
 revisioned aggregate. This makes adding an idea and its connections atomic.
-The device mode uses a distinct browser store. The client projects saved
-ideas into domain branches and nested lens maps. Motion on those paths is
-visual feedback about the graph structure. It does not report model activity.
+The device mode uses a distinct browser store. The Core and individual lens workspaces show saved ideas and their connections.
+The dashboard uses a separate decorative 3D projection around a centered Core
+button. Its motion does not report model activity.
 
 Optional Core reflection uses a single bounded Responses API call. The server
 adds the seven lens prompts, the user's explicit intention and any selected

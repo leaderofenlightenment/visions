@@ -1,139 +1,141 @@
-import { agents } from '@/lib/codex'
+type Point = { x: number; y: number; z: number; hue: number; size: number }
+type Vector = Pick<Point, 'x' | 'y' | 'z'>
+type Projected = { x: number; y: number; depth: number; scale: number }
+type Edge = { a: number; b: number; spark: boolean }
 
-export const core = { x: 50, y: 47.8, color: '#a778ff' }
-export const points = [...agents, core]
-const spectrum = ['#805dff', '#ab54ff', '#f54ebc', '#ff9651', '#51e5ff', '#377bff']
-const tau = Math.PI * 2
+const turn = Math.PI * 2
+const goldenAngle = Math.PI * (3 - Math.sqrt(5))
 
-function randomSequence(seed: number) {
+function seededRandom(seed: number) {
   return () => {
-    seed = (Math.imul(1664525, seed) + 1013904223) >>> 0
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
     return seed / 4294967296
   }
 }
 
-export function drawNetwork(ctx: CanvasRenderingContext2D, width: number, height: number, lite: boolean) {
-  const random = randomSequence(712)
-  const cx = width * .5
-  const cy = height * .479
-  const rx = width * .446
-  const ry = height * .455
-  ctx.clearRect(0, 0, width, height)
+export function buildNeuralScene(lite: boolean) {
+  const random = seededRandom(7343)
+  const count = lite ? 124 : 271
+  const points: Point[] = Array.from({ length: count }, (_, index) => {
+    const height = 1 - 2 * (index + .5) / count
+    const angle = index * goldenAngle
+    const ring = Math.sqrt(1 - height * height)
+    const r = .49 + .57 * Math.pow(random(), .42)
+    const ripple = 1 + .08 * Math.sin(angle * 3 + height * 5)
+    return {
+      x: Math.cos(angle) * ring * r * ripple,
+      y: height * r * .84,
+      z: Math.sin(angle) * ring * r,
+      hue: 202 + random() * 92,
+      size: .55 + Math.pow(random(), 3) * 1.5,
+    }
+  })
 
-  const nebulae = [
-    [.47, .44, .52, '90,40,220'], [.78, .41, .35, '159,29,200'],
-    [.24, .63, .34, '38,58,218'], [.58, .82, .28, '37,114,200'],
-    [.58, .20, .25, '168,65,110'],
-  ] as const
-  for (const [x, y, radius, rgb] of nebulae) {
-    const gradient = ctx.createRadialGradient(width * x, height * y, 0, width * x, height * y, width * radius)
-    gradient.addColorStop(0, `rgba(${rgb},.21)`)
-    gradient.addColorStop(.55, `rgba(${rgb},.07)`)
-    gradient.addColorStop(1, `rgba(${rgb},0)`)
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, width, height)
-  }
-
-  for (let i = 0; i < (lite ? 170 : 580); i++) {
-    const x = random() * width
-    const y = random() * height
-    ctx.fillStyle = spectrum[Math.floor(random() * spectrum.length)]
-    ctx.globalAlpha = .09 + random() * .40
-    const size = random() * 1.05 + .14
-    ctx.fillRect(x, y, size, size)
-  }
-
-  const curves = []
-  for (let from = 0; from < points.length; from++) {
-    for (let to = from + 1; to < points.length; to++) {
-      const a = points[from]
-      const b = points[to]
-      const ax = a.x / 100 * width
-      const ay = a.y / 100 * height
-      const bx = b.x / 100 * width
-      const by = b.y / 100 * height
-      const dx = bx - ax
-      const dy = by - ay
-      for (let strand = 0; strand < (lite ? 1 : 3); strand++) {
-        const bend = (random() - .5) * .82
-        const c1x = ax + dx * .32 + dy * bend
-        const c1y = ay + dy * .32 - dx * bend
-        const c2x = bx - dx * .32 + dy * bend * .62
-        const c2y = by - dy * .32 - dx * bend * .62
-        const gradient = ctx.createLinearGradient(ax, ay, bx, by)
-        gradient.addColorStop(0, a.color)
-        gradient.addColorStop(.52, spectrum[(from + to + strand) % spectrum.length])
-        gradient.addColorStop(1, b.color)
-        ctx.strokeStyle = gradient
-        ctx.lineWidth = strand === 0 ? 1 : .55
-        ctx.globalAlpha = strand === 0 ? .45 : .22
-        ctx.beginPath()
-        ctx.moveTo(ax, ay)
-        ctx.bezierCurveTo(c1x, c1y, c2x, c2y, bx, by)
-        ctx.stroke()
-        if (strand === 0) curves.push({ ax, ay, bx, by, c1x, c1y, c2x, c2y, color: a.color })
-      }
+  const pairs = new Set<string>()
+  const edges: Edge[] = []
+  for (const [a, point] of points.entries()) {
+    const near = points.map((target, b) => ({
+      b, distance: (point.x - target.x) ** 2 + (point.y - target.y) ** 2 + (point.z - target.z) ** 2,
+    })).filter(target => target.b !== a && target.distance < .2).sort((a, b) => a.distance - b.distance)
+    for (const { b } of near.slice(0, lite ? 3 : 4)) {
+      const key = Math.min(a, b) + ':' + Math.max(a, b)
+      if (pairs.has(key)) continue
+      pairs.add(key)
+      edges.push({ a, b, spark: random() < .055 })
     }
   }
 
-  for (let ribbon = 0; ribbon < 5; ribbon++) {
-    const phase = ribbon * 1.45
-    const steps = lite ? 112 : 232
-    const threads = lite ? 5 : 17
-    const gradient = ctx.createLinearGradient(0, height * .17, width, height * .85)
-    gradient.addColorStop(0, spectrum[ribbon])
-    gradient.addColorStop(.31, spectrum[(ribbon + 2) % spectrum.length])
-    gradient.addColorStop(.59, spectrum[(ribbon + 4) % spectrum.length])
-    gradient.addColorStop(1, spectrum[(ribbon + 1) % spectrum.length])
-    ctx.fillStyle = gradient
-    ctx.strokeStyle = gradient
-    for (let thread = 0; thread <= threads; thread++) {
-      ctx.lineWidth = thread === threads ? .97 : .46
-      ctx.globalAlpha = thread === threads ? .65 : .19
-      ctx.beginPath()
-      for (let i = 0; i <= steps; i++) {
-        const a = i / steps * tau
-        const deformation = .84 + .093 * Math.sin(a * 3 + phase) + .055 * Math.cos(a * 5 - phase)
-        const surface = (thread / threads - .5) * .21 * Math.sin(a * 2 + phase)
-        const x = cx + rx * Math.cos(a + phase * .10) * (deformation + surface)
-        const y = cy + ry * Math.sin(a) * (deformation - surface) + Math.sin(a * 4 + phase) * height * .032
-        if (i === 0) ctx.moveTo(x, y)
-        else ctx.lineTo(x, y)
-        if ((i + thread) % 3 === 0) ctx.fillRect(x, y, thread === threads ? 1.25 : .72, thread === threads ? 1.25 : .72)
+  const orbits = Array.from({ length: lite ? 3 : 5 }, (_, band) =>
+    Array.from({ length: 93 }, (_, i) => {
+      const phase = i / 92 * turn
+      const tilt = .38 + band * .56
+      const radius = 1.03 + band * .034 + .048 * Math.sin(phase * 4 + band)
+      return {
+        x: Math.cos(phase) * radius,
+        y: Math.sin(phase) * Math.cos(tilt) * radius,
+        z: Math.sin(phase) * Math.sin(tilt) * radius,
       }
-      ctx.closePath()
+    }),
+  )
+  return { points, edges, orbits, lite }
+}
+
+export function drawNeuralScene(
+  ctx: CanvasRenderingContext2D, scene: ReturnType<typeof buildNeuralScene>,
+  width: number, height: number, time: number, pointerX: number, pointerY: number,
+) {
+  const radius = Math.min(width * .435, height * .46)
+  const cx = width / 2
+  const cy = height / 2
+  const turnY = .32 + time * .19 + pointerX * .14
+  const turnX = .20 + Math.sin(time * .25) * .13 + pointerY * .16
+  const cosY = Math.cos(turnY)
+  const sinY = Math.sin(turnY)
+  const cosX = Math.cos(turnX)
+  const sinX = Math.sin(turnX)
+  const project = (point: Vector): Projected => {
+    const x = point.x * cosY + point.z * sinY
+    const z = point.z * cosY - point.x * sinY
+    const y = point.y * cosX - z * sinX
+    const depth = point.y * sinX + z * cosX
+    const scale = 3.9 / (3.9 - depth)
+    return { x: cx + x * radius * scale, y: cy + y * radius * scale, depth, scale }
+  }
+  const projected = scene.points.map(project)
+  ctx.clearRect(0, 0, width, height)
+  ctx.globalCompositeOperation = 'lighter'
+
+  for (const [index, orbit] of scene.orbits.entries()) {
+    ctx.beginPath()
+    for (const [i, point] of orbit.entries()) {
+      const p = project(point)
+      if (i === 0) ctx.moveTo(p.x, p.y)
+      else ctx.lineTo(p.x, p.y)
+    }
+    ctx.lineWidth = .67
+    ctx.strokeStyle = index % 2 ? 'rgba(80,184,255,.15)' : 'rgba(169,100,250,.18)'
+    ctx.stroke()
+  }
+
+  for (const [index, edge] of scene.edges.entries()) {
+    const a = projected[edge.a]
+    const b = projected[edge.b]
+    const depth = (a.depth + b.depth + 2.2) / 4.4
+    const hue = (scene.points[edge.a].hue + scene.points[edge.b].hue) / 2
+    ctx.strokeStyle = `hsla(${hue}, 93%, 67%, ${.045 + depth * .29})`
+    ctx.lineWidth = .48 + depth * .61
+    ctx.beginPath()
+    ctx.moveTo(a.x, a.y)
+    ctx.lineTo(b.x, b.y)
+    ctx.stroke()
+
+    if (edge.spark && !scene.lite) {
+      const t = (time * (.28 + index % 5 * .044) + index * .618) % 1
+      const tail = Math.max(0, t - .2)
+      ctx.lineWidth = 1.15
+      ctx.strokeStyle = `hsla(${hue}, 100%, 78%, ${Math.sin(t * Math.PI) * (.26 + depth * .62)})`
+      ctx.beginPath()
+      ctx.moveTo(a.x + (b.x - a.x) * tail, a.y + (b.y - a.y) * tail)
+      ctx.lineTo(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t)
       ctx.stroke()
     }
   }
 
-  for (let i = 0; i < 44; i++) {
-    const curve = curves[(i * 5 + 2) % curves.length]
-    const [x, y] = sampleCurve(curve, .14 + random() * .72)
-    const size = i % 7 === 0 ? 2.3 : .8 + random() * .75
-    ctx.globalAlpha = .84
-    ctx.shadowBlur = i % 7 === 0 ? 14 : 7
-    ctx.shadowColor = curve.color
-    ctx.fillStyle = curve.color
+  for (const [index, point] of projected.entries()) {
+    const { size, hue } = scene.points[index]
+    const near = (point.depth + 1.2) / 2.4
+    const r = size * point.scale * (.7 + near * .67)
+    if (size > 1.35 && near > .53) {
+      const bloom = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, r * 4.5)
+      bloom.addColorStop(0, `hsla(${hue}, 96%, 66%, .36)`)
+      bloom.addColorStop(1, `hsla(${hue}, 96%, 66%, 0)`)
+      ctx.fillStyle = bloom
+      ctx.fillRect(point.x - r * 4.5, point.y - r * 4.5, r * 9, r * 9)
+    }
+    ctx.fillStyle = `hsla(${hue}, 90%, ${62 + near * 22}%, ${.27 + near * .67})`
     ctx.beginPath()
-    ctx.arc(x, y, size, 0, tau)
-    ctx.fill()
-    ctx.shadowBlur = 0
-    ctx.fillStyle = '#f9edff'
-    ctx.beginPath()
-    ctx.arc(x, y, size * .48, 0, tau)
+    ctx.arc(point.x, point.y, r, 0, turn)
     ctx.fill()
   }
-  ctx.globalAlpha = 1
-  return curves
-}
-
-type Curve = { ax: number; ay: number; bx: number; by: number; c1x: number; c1y: number; c2x: number; c2y: number; color: string }
-
-export function sampleCurve(curve: Curve, t: number) {
-  const u = 1 - t
-  const { ax, ay, bx, by, c1x, c1y, c2x, c2y } = curve
-  return [
-    u ** 3 * ax + 3 * u ** 2 * t * c1x + 3 * u * t ** 2 * c2x + t ** 3 * bx,
-    u ** 3 * ay + 3 * u ** 2 * t * c1y + 3 * u * t ** 2 * c2y + t ** 3 * by,
-  ]
+  ctx.globalCompositeOperation = 'source-over'
 }

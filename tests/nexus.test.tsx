@@ -23,7 +23,7 @@ window.HTMLCanvasElement.prototype.getContext = () => null
 window.HTMLDialogElement.prototype.showModal ??= function () { this.open = true }
 window.HTMLDialogElement.prototype.close ??= function () { this.open = false }
 
-const { cleanup, fireEvent, render, screen, waitFor, within } = await import('@testing-library/react')
+const { cleanup, fireEvent, render, screen, within } = await import('@testing-library/react')
 const { Nexus } = await import('../components/nexus')
 
 beforeEach(() => {
@@ -85,18 +85,15 @@ test('toggles module visibility and changes the reduced motion preference', () =
   assert.ok(container.querySelector('.app-shell.reduced-motion'))
 })
 
-test('exposes zoom and reset controls for the eight-node network', () => {
+test('uses the centered Core as the only network control', () => {
   render(<Nexus />)
   const network = within(screen.getByRole('region', { name: 'VISIONS neural network' }))
-  assert.equal(network.getAllByRole('button').length, 11)
-  fireEvent.click(network.getByRole('button', { name: 'Zoom in' }))
-  assert.equal(network.getByRole('status').textContent, '120%')
-  fireEvent.click(network.getByRole('button', { name: 'Reset network view' }))
-  assert.equal(network.getByRole('status').textContent, '100%')
+  assert.equal(network.getAllByRole('button').length, 1)
+  fireEvent.click(network.getByRole('button', { name: 'VISIONS Core' }))
+  assert.ok(screen.getByRole('dialog', { name: 'VISIONS Core' }))
 })
 
-
-test('adds connected framework ideas and opens their live domain branch', async () => {
+test('adds connected framework ideas and returns to them through the Core', async () => {
   const view = render(<Nexus />)
   fireEvent.click(screen.getByRole('button', { name: 'VISIONS Core' }))
   const dialog = within(screen.getByRole('dialog', { name: 'VISIONS Core' }))
@@ -113,17 +110,16 @@ test('adds connected framework ideas and opens their live domain branch', async 
   await dialog.findByRole('heading', { name: 'Shared evening rhythm' })
   assert.ok(dialog.getByRole('button', { name: 'Protected rest · Vision' }))
   fireEvent.click(dialog.getByRole('button', { name: 'Close dialog' }))
-  const graph = within(screen.getByRole('region', { name: 'VISIONS neural network' }))
-  assert.ok(graph.getByRole('button', { name: 'Business branch, vision, 1 idea' }))
-  fireEvent.click(graph.getByRole('button', { name: 'Relationships branch, integration, 1 idea' }))
-  assert.ok(screen.getByRole('dialog', { name: 'Integration' }))
-  assert.ok(screen.getByRole('button', { name: 'Explore Shared evening rhythm' }))
   view.unmount()
   render(<Nexus />)
-  await waitFor(() => assert.ok(screen.getByRole('button', { name: 'Relationships branch, integration, 1 idea' })))
+  fireEvent.click(screen.getByRole('button', { name: 'VISIONS Core' }))
+  const reopened = within(screen.getByRole('dialog', { name: 'VISIONS Core' }))
+  const relationships = await reopened.findByRole('button', { name: 'Integration in Relationships: 1 idea' })
+  fireEvent.click(relationships)
+  assert.ok(reopened.getByRole('button', { name: 'Explore Shared evening rhythm' }))
 })
 
-test('applies a course system to its domain and grows a saved branch', async () => {
+test('applies a course system and makes it available in the Core', async () => {
   render(<Nexus />)
   fireEvent.click(screen.getByRole('button', { name: 'Explore course' }))
   fireEvent.change(screen.getByRole('textbox', { name: 'Find course material' }), { target: { value: 'Sacramental Lifestyle Worksheet' } })
@@ -137,7 +133,8 @@ test('applies a course system to its domain and grows a saved branch', async () 
   assert.ok(dialog.getByRole('button', { name: 'Sacramental Lifestyle Worksheet' }))
   fireEvent.click(dialog.getByRole('button', { name: 'Close dialog' }))
   fireEvent.click(screen.getByRole('link', { name: 'Dashboard' }))
-  assert.ok(screen.getByRole('button', { name: 'Lifestyle branch, system, 1 idea' }))
+  fireEvent.click(screen.getByRole('button', { name: 'VISIONS Core' }))
+  assert.ok(await screen.findByRole('button', { name: 'System in Lifestyle: 1 idea' }))
 })
 
 
@@ -160,7 +157,7 @@ test('reads lesson content inside VISIONS and follows an internal course referen
   assert.equal(screen.queryByRole('link', { name: /notion/i }), null)
 })
 
-test('saving the guided framework creates a branch and updates the corresponding document', async () => {
+test('saving the guided framework updates the Core and the corresponding document', async () => {
   render(<Nexus />)
   fireEvent.click(screen.getByRole('button', { name: 'Open guided framework' }))
   const answer = await screen.findByRole('textbox', { name: /Vision of Theosis/ })
@@ -168,7 +165,9 @@ test('saving the guided framework creates a branch and updates the corresponding
   fireEvent.click(screen.getByRole('button', { name: 'Save Lifestyle to VISIONS' }))
   await screen.findByText('1 of 21 prompts saved')
   fireEvent.click(screen.getByRole('link', { name: 'Dashboard' }))
-  assert.ok(screen.getByRole('button', { name: 'Lifestyle branch, vision, 1 idea' }))
+  fireEvent.click(screen.getByRole('button', { name: 'VISIONS Core' }))
+  assert.ok(await screen.findByRole('button', { name: 'Vision in Lifestyle: 1 idea' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }))
   fireEvent.click(screen.getByRole('link', { name: 'Lifestyle' }))
   assert.ok(screen.getByRole('heading', { name: 'The Theosis Framework document' }))
   assert.ok(screen.getByText('Close work at sundown and leave space for prayer.'))

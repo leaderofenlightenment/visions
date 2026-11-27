@@ -26,7 +26,7 @@ import { useFramework } from './use-framework'
 
 type Overlay =
   | { kind: 'palette' | 'notifications' | 'profile' | 'plan' }
-  | { kind: 'agent'; id: AgentId | 'core'; domain?: ModuleId }
+  | { kind: 'agent'; id: AgentId | 'core' }
   | { kind: 'domain' | 'stage'; index: number }
   | { kind: 'course' | 'reading'; material: CourseMaterial; application?: CourseApplication }
   | { kind: 'output'; id: (typeof outputs)[number]['id'] }
@@ -281,7 +281,7 @@ export function Nexus() {
           <span className="preview-badge"><i/> VISIONS FRAMEWORK</span>
         </div>
         <section className="panel course-banner" aria-label="Start your VISIONS framework">
-          <div><strong>Start your VISIONS framework</strong><span>Answer 21 prompts, see them in the network, and build your three domain documents.</span></div>
+          <div><strong>Start your VISIONS framework</strong><span>Answer 21 prompts, save your ideas in the Core, and build your three domain documents.</span></div>
           <div className="personal-actions"><button className="primary-button" onClick={() => openGuide()}>Open guided framework</button>
             <a className="secondary-button" href={guidePdf} download>PDF manual</a></div>
         </section>
@@ -298,8 +298,7 @@ export function Nexus() {
             <button className="panel-link" onClick={() => navigate('knowledge')}>Explore knowledge <ChevronRight size={13}/></button>
             <Wave offset={1.7}/>
           </section>
-          <NeuralNetwork onSelect={selectAgent} graph={framework.graph}
-            onBranch={(lens, domain) => setOverlay({ kind: 'agent', id: lens, domain })} reduced={reduced} lite={lite}/>
+          <NeuralNetwork onOpen={() => selectAgent('core')} reduced={reduced} lite={lite}/>
           <section className="panel outputs-panel" aria-labelledby="framework-domains">
             <h2 className="panel-heading" id="framework-domains"><Layers3 size={16}/> Life Domains</h2>
             <div className="output-list">{modules.map(module => {
@@ -317,7 +316,7 @@ export function Nexus() {
             <section className="panel focus-panel">
               <h2 className="panel-heading"><Crosshair size={16}/> Current Focus</h2>
               <strong>{framework.graph.ideas.length ? 'Your framework' : 'Reality Design'}</strong>
-              <p>{framework.graph.ideas.length ? 'Follow a branch to explore how your ideas connect.' : 'Start with a value, question, or practice in the Core.'}</p>
+              <p>{framework.graph.ideas.length ? 'Open the Core to explore your ideas and connections.' : 'Start with a value, question, or practice in the Core.'}</p>
               <div className="focus-rule"/>
               <span className="eyebrow">{framework.graph.ideas.length} IDEAS · {frameworkConnections(framework.graph).length} CONNECTIONS</span>
             </section>
@@ -490,10 +489,10 @@ export function Nexus() {
       <p>Apply this material by saving an idea, practice, or next step and linking it to ideas already in your framework.</p>
       <FrameworkWorkspace key={overlay.material.id} store={framework} onReadCourse={readCourse} onOpenGuide={openGuide} course={overlay.material} application={overlay.application}/>
     </Dialog>}
-    {overlay?.kind === 'agent' && <Dialog key={'framework-' + overlay.id + ':' + (overlay.domain ?? '')}
+    {overlay?.kind === 'agent' && <Dialog key={'framework-' + overlay.id}
       title={selectedAgent?.name ?? 'VISIONS Core'} label={selectedAgent?.archetype ?? 'THE FULL VISIONS FRAMEWORK'} onClose={() => setOverlay(null)}>
       <p>{selectedAgent?.description ?? 'Bring Lifestyle, Business, and Relationships into one framework. Each VISIONS lens helps you notice a different aspect of the same life.'}</p>
-      <FrameworkWorkspace store={framework} onReadCourse={readCourse} onOpenGuide={openGuide} lens={selectedAgent?.id} domain={overlay.domain}/>
+      <FrameworkWorkspace store={framework} onReadCourse={readCourse} onOpenGuide={openGuide} lens={selectedAgent?.id}/>
       {!selectedAgent && <details><summary>Reflect with the VISIONS Core</summary><AgentRun/></details>}
       {selectedAgent && <button className="secondary-button" type="button" onClick={() => selectAgent('core')}>Open the full framework</button>}
     </Dialog>}
